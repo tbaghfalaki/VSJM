@@ -18,6 +18,9 @@ x=cbind(1,Gender,Smoking,Age,Drug2,Drug1,BMI)
 w=cbind(1,Gender,Smoking,Age,Drug2,Drug1)
 -------------------------
 
-Res=DS(Y=Y, time=time, x=x, w=w, surt=surt, event=event,
+Resds=DS(Y=Y, time=time, x=x, w=w, surt=surt, event=event,
        niter=1000, nburnin=500, nthin=2, nchains=2)
 
+
+Rescs=CS(Y=Y, time=time, x=x, w=w, surt=surt, event=event,
+       niter=1000, nburnin=500, nthin=2, nchains=2)
