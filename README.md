@@ -19,5 +19,5 @@
 **Example Usage**
   > Examples from the VSJM can be found in the following:
 
-- CS, DS: This analysis is presented [here](Example.md)
+- CS, DS: This analysis is presented [here](/Example.md)
 
