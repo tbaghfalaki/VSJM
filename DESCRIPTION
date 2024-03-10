@@ -1,0 +1,19 @@
+Package: VSJM
+Type: Package
+Title: Variable Selection and Dynamic Prediction in Joint Models of Multiple Longitudinal Measures and Competing Risks
+Version: 0.1.3
+Authors@R: c(
+    person("Taban", "Baghfalaki", email = "t.baghfalaki@gmail.com", role =c("cre","aut")),
+    person("Helene", "Jaqmin-Gadda", email = "helene.jacqmin-gadda@u-bordeaux.fr", role = "aut"),
+    person("Reza", "Hashemi", email = "r.hashemi@razi.ac.ir", role = "aut"))
+Maintainer: Taban Baghfalaki <t.baghfalaki@gmail.com>
+Description: Employing a two-stage strategy for variable selection in joint modeling of multiple longitudinal measures and competing risks outcomes. The initial stage involves the estimation of K one-marker joint models for both the competing risks and each marker. Subsequently, in the second stage, time-varying covariates are integrated into a proportional hazard model to estimate parameters. Both phases follow the Bayesian paradigm, with the latter stage using a spike-and-slab prior to improve variable selection within the competing risks model. Additionally, this approach facilitates the computation of dynamic predictions based on the estimated parameter values.
+License: GPL (>= 2.0)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.0
+Imports: stats, jagsUI, statmod, survival, nnet, arules
+Depends: R (>= 4.0.0)
+SystemRequirements: JAGS 4.x.y
+
+
