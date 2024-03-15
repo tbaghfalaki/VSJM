@@ -2,7 +2,9 @@ library(survival)
 data(dataLong)
 data(dataSurv)
 
-UJM(
+\dontrun{
+
+A=UJM(
   formFixed = Y1 ~ obstime + x1 + x2, formRandom = ~obstime,
   formGroup = ~id, formSurv = Surv(survtime, CR) ~ w1 + x1,
   dataLong, dataSurv, K = 15, model = "intercept", Obstime = "obstime",
@@ -10,7 +12,7 @@ UJM(
   n.thin = 1,
   DIC = TRUE, quiet = FALSE
 )
-\donttest{
+
 UJM(
   formFixed = Y1 ~ obstime + x1 + x2, formRandom = ~obstime,
   formGroup = ~id, formSurv = Surv(survtime, CR) ~ w1 + x1,

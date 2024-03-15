@@ -13,7 +13,7 @@
 #' @param dataLong data set of observed longitudinal variables.
 #' @param dataSurv data set of observed survival variables.
 #' @param K Number of nodes and weights for calculating Gaussian quadrature.
-#' @param model the model for the longitudinal part which includes "linear" or "quadratic".
+#' @param model the model for the longitudinal part which includes "intercept", "linear" or "quadratic".
 #' @param Obstime the observed time in longitudinal data
 #' @param n.chains the number of parallel chains for the model; default is 1.
 #' @param n.iter integer specifying the total number of iterations; default is 1000.
@@ -37,8 +37,7 @@
 #' - 97.5% list of posterior median for each parameter
 #' - Rhat Gelman and Rubin diagnostic for all parameter
 #'
-#' @author Taban Baghfalaki \email{t.baghfalaki@gmail.com}, Helene Jacqmin-gadda \email{helene.jacqmin-gadda@u-bordeaux.fr}, Reza Hashemi \email{r.hashemi@razi.ac.ir}
-#'
+#' @author Taban Baghfalaki \email{t.baghfalaki@gmail.com}
 #'
 #' @example inst/exampleUJM.R
 #'
@@ -53,6 +52,7 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
     data_long <- dataLong[unique(c(all.vars(formGroup), all.vars(formFixed), all.vars(formRandom)))]
     y <- data_long[all.vars(formFixed)][, 1]
     data_long <- data_long[is.na(y) == FALSE, ]
+    y <- data_long[all.vars(formFixed)][, 1]
     mfX <- stats::model.frame(formFixed, data = data_long) # , na.action = NULL)
     X <- stats::model.matrix(formFixed, mfX) # , na.action = NULL)
     mfU <- stats::model.frame(formRandom, data = data_long) # , na.action = NULL)
@@ -71,7 +71,6 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
 
     ## Number of patients and number of longitudinal observations per patient
     n <- length(id)
-
     tmp <- dataSurv[all.vars(formSurv)]
     Time <- tmp[all.vars(formSurv)][, 1] # matrix of observed time such as Time=min(Tevent,Tcens)
     CR <- tmp[all.vars(formSurv)][, 2] # vector of event indicator (delta)
@@ -299,6 +298,7 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
 
     sim1 <- jagsUI::jags(
       data = d.jags,
+      inits=i.jags,
       parameters.to.save = parameters,
       model.file = model_fileL_last,
       n.chains = n.chains,
@@ -320,7 +320,15 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
       linearpred = sim1$sims.list$linearpred,
       b = sim1$sims.list$b
     )
-
+    PMean <- list(
+      beta = sim1$mean$betaL, gamma = sim1$mean$betaS,
+      alpha = sim1$mean$gamma1,
+      h = sim1$mean$h,
+      sigma = sim1$mean$sigma1,
+      Sigma = sim1$mean$Sigma,
+      linearpred = sim1$mean$linearpred,
+      b = sim1$mean$b
+    )
 
     if (n.chains > 1) {
       names(sim1$mean$betaL) <-
@@ -398,8 +406,10 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
 
   if (model == "linear") {
     data_long <- dataLong[unique(c(all.vars(formGroup), all.vars(formFixed), all.vars(formRandom)))]
+
     y <- data_long[all.vars(formFixed)][, 1]
     data_long <- data_long[is.na(y) == FALSE, ]
+    y <- data_long[all.vars(formFixed)][, 1]
     mfX <- stats::model.frame(formFixed, data = data_long) # , na.action = NULL)
     X <- stats::model.matrix(formFixed, mfX) # , na.action = NULL)
     mfU <- stats::model.frame(formRandom, data = data_long) # , na.action = NULL)
@@ -648,6 +658,7 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
 
     sim1 <- jagsUI::jags(
       data = d.jags,
+      inits=i.jags,
       parameters.to.save = parameters,
       model.file = model_fileL_last,
       n.chains = n.chains,
@@ -670,7 +681,15 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
       b = sim1$sims.list$b
     )
 
-
+    PMean <- list(
+      beta = sim1$mean$betaL, gamma = sim1$mean$betaS,
+      alpha = sim1$mean$gamma1,
+      h = sim1$mean$h,
+      sigma = sim1$mean$sigma1,
+      Sigma = sim1$mean$Sigma,
+      linearpred = sim1$mean$linearpred,
+      b = sim1$mean$b
+    )
     if (n.chains > 1) {
       names(sim1$mean$betaL) <-
         names(sim1$sd$betaL) <-
@@ -752,6 +771,7 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
     data_long <- dataLong[unique(c(all.vars(formGroup), all.vars(formFixed), all.vars(formRandom)))]
     y <- data_long[all.vars(formFixed)][, 1]
     data_long <- data_long[is.na(y) == FALSE, ]
+    y <- data_long[all.vars(formFixed)][, 1]
     mfX <- stats::model.frame(formFixed, data = data_long) # , na.action = NULL)
     X <- stats::model.matrix(formFixed, mfX) # , na.action = NULL)
     mfU <- stats::model.frame(formRandom, data = data_long) # , na.action = NULL)
@@ -1019,6 +1039,7 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
 
     sim1 <- jagsUI::jags(
       data = d.jags,
+      inits=i.jags,
       parameters.to.save = parameters,
       model.file = model_fileQ_final,
       n.chains = n.chains,
@@ -1040,7 +1061,15 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
       linearpred = sim1$sims.list$linearpred,
       b = sim1$sims.list$b
     )
-
+    PMean <- list(
+      beta = sim1$mean$betaL, gamma = sim1$mean$betaS,
+      alpha = sim1$mean$gamma1,
+      h = sim1$mean$h,
+      sigma = sim1$mean$sigma1,
+      Sigma = sim1$mean$Sigma,
+      linearpred = sim1$mean$linearpred,
+      b = sim1$mean$b
+    )
 
     if (n.chains > 1) {
       names(sim1$mean$betaL) <-
@@ -1121,9 +1150,9 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
   DIC <- sim1$DIC - 2 * KK * n2
 
 
-  list(
-    MCMC = MCMC,
-    formFixed = formFixed, formRandom = formRandom, formGroup = formGroup, formSurv = formSurv,
-    Estimation = results, DIC = DIC
+  list(PMean=PMean,
+       MCMC = MCMC,
+       formFixed = formFixed, formRandom = formRandom, formGroup = formGroup, formSurv = formSurv,
+       Estimation = results, DIC = DIC
   )
 }
