@@ -35,8 +35,9 @@ model <- list("intercept", "linear", "quadratic")
 
 VS <- VS(formFixed, formRandom, formGroup, formSurv,
   nmark = 3, K1 = 15, K2 = 15,
-  model = model, n.chains = 1, n.iter = 100, n.burnin = 50,
-  n.thin = 1, Obstime = "obstime", Method = "DS", ncl = 2,
+  model = model, n.chains1 = 1, n.iter1 = 30, n.burnin1 = 10,
+  n.thin1 = 1,  n.chains2 = 1, n.iter2 = 30, n.burnin2 = 10,
+  n.thin2 = 1, simplify=TRUE, Obstime = "obstime", Method = "DS", ncl = 2,
   DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
 )
 
@@ -100,8 +101,9 @@ model <- list("intercept", "linear", "quadratic")
 
 VS <- VS(formFixed, formRandom, formGroup, formSurv,
          nmark = 3, K1 = 15, K2 = 15,
-         model = model, n.chains = 1, n.iter = 50, n.burnin = 20,
-         n.thin = 1, Obstime = "obstime", Method = "DS", ncl = 2,
+         model = model, n.chains1 = 1, n.iter1 = 30, n.burnin1 = 10,
+         n.thin1 = 1,  n.chains2 = 1, n.iter2 = 30, n.burnin2 = 10,
+         n.thin2 = 1, simplify=TRUE, Obstime = "obstime", Method = "DS", ncl = 2,
          DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
 )
 
@@ -117,6 +119,10 @@ DP <- DP(VS, Step2,
          n.thin = 1,cause_main=1,
          DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )
+
+
+Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+         CR = dataSurv_v$CR, P = DP$DP[,2], cause = 1)
 
 ######################################################################
 

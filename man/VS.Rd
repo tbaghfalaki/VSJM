@@ -13,13 +13,18 @@ VS(
   K1 = K1,
   K2 = K2,
   model = model,
-  n.chains = n.chains,
-  n.iter = n.iter,
-  n.burnin = floor(n.iter/2),
-  n.thin = max(1, floor((n.iter - n.burnin)/1000)),
+  n.chains1 = n.chains,
+  n.iter1 = n.iter,
+  n.burnin1 = floor(n.iter1/2),
+  n.thin1 = max(1, floor((n.iter1 - n.burnin1)/1000)),
+  n.chains2 = n.chains,
+  n.iter2 = n.iter,
+  n.burnin2 = floor(n.iter2/2),
+  n.thin2 = max(1, floor((n.iter2 - n.burnin2)/1000)),
   Obstime = "obstime",
   Method = "DS",
   ncl = ncl,
+  simplify = TRUE,
   DIC = TRUE,
   quiet = FALSE,
   dataLong,
@@ -43,19 +48,29 @@ VS(
 
 \item{model}{a list of the models for the longitudinal part which includes "linear" or "quadratic".}
 
-\item{n.chains}{the number of parallel chains for the model; default is 1.}
+\item{n.chains1}{the number of parallel chains for the model in the first stage; default is 1.}
 
-\item{n.iter}{integer specifying the total number of iterations; default is 1000.}
+\item{n.iter1}{integer specifying the total number of iterations in the first stage; default is 1000.}
 
-\item{n.burnin}{integer specifying how many of n.iter to discard as burn-in ; default is 5000.}
+\item{n.burnin1}{integer specifying how many of n.iter to discard as burn-in in the first stage; default is 5000.}
 
-\item{n.thin}{integer specifying the thinning of the chains; default is 1.}
+\item{n.thin1}{integer specifying the thinning of the chains in the first stage; default is 1.}
+
+\item{n.chains2}{the number of parallel chains for the model in the second stage; default is 1.}
+
+\item{n.iter2}{integer specifying the total number of iterations in the second stage; default is 1000.}
+
+\item{n.burnin2}{integer specifying how many of n.iter to discard as burn-in in the second stage; default is 5000.}
+
+\item{n.thin2}{integer specifying the thinning of the chains in the second stage; default is 1.}
 
 \item{Obstime}{the observed time in longitudinal data}
 
 \item{Method}{the method for variable selection including "CS" for continues spike and "DS" for Dirac spike.}
 
 \item{ncl}{the number of nodes to be forked for parallel computing}
+
+\item{simplify}{Logical; the option for simplifying the use of CS and DS; default is TRUE.}
 
 \item{DIC}{Logical; if TRUE (default), compute deviance, pD, and DIC. The rule pD=var(deviance) / 2 is used.}
 
@@ -149,7 +164,67 @@ library(DPCri);library(survival)
 Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
          CR = dataSurv_v$CR, P = DP$DP[,2], cause = 1)
 
+######################################################################
+rm(list=ls())
+data(dataLong_m)
+data(dataSurv_m)
+set.seed(2)
+INDTRAIN <- sample(dataSurv_m$id, 0.5 * (dim(dataSurv_m)[1]))
+INDVALID <- dataSurv_m$id[-INDTRAIN]
+dataLong_t <- subset(
+  dataLong_m,
+  dataLong_m$id \%in\% INDTRAIN
+)
+dataSurv_t <- subset(
+  dataSurv_m,
+  dataSurv_m$id \%in\% INDTRAIN
+)
+names(dataSurv_t)
 
+dataLong_v <- subset(
+  dataLong_m,
+  dataLong_m$id \%in\% INDVALID
+)
+dataSurv_v <- subset(
+  dataSurv_m,
+  dataSurv_m$id \%in\% INDVALID
+)
+
+
+
+formFixed <- list(Y1 ~ obstime, Y2 ~ obstime, Y3 ~ obstime)
+formRandom <- list(~obstime, ~obstime, ~obstime)
+formGroup <- list(~id, ~id, ~id)
+formSurv <- survival::Surv(survtime, CR) ~ w1 + x1
+model <- list("intercept", "linear", "quadratic")
+
+
+
+VS <- VS(formFixed, formRandom, formGroup, formSurv,
+         nmark = 3, K1 = 15, K2 = 15,
+         model = model, n.chains = 1, n.iter = 50, n.burnin = 20,
+         n.thin = 1, Obstime = "obstime", Method = "DS", ncl = 2,
+         DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
+)
+
+SVS <- SVS(VS)
+
+Step2 <- VS2(VS,
+             Method = "LBFDR", n.chains = 2, n.iter = 100, n.burnin = 50,
+             n.thin = 1, dataLong = dataLong_t, dataSurv = dataSurv_t
+)
+
+DP <- DP(VS, Step2,
+         Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 100, n.burnin = 50,
+         n.thin = 1,cause_main=1,
+         DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
+)
+
+
+Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+         CR = dataSurv_v$CR, P = DP$DP[,2], cause = 1)
+
+######################################################################
 
   rm(list=ls())
   set.seed(2)

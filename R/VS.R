@@ -19,10 +19,15 @@
 #' @param Obstime the observed time in longitudinal data
 #' @param ncl the number of nodes to be forked for parallel computing
 #' @param Method the method for variable selection including "CS" for continues spike and "DS" for Dirac spike.
-#' @param n.chains the number of parallel chains for the model; default is 1.
-#' @param n.iter integer specifying the total number of iterations; default is 1000.
-#' @param n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
-#' @param n.thin integer specifying the thinning of the chains; default is 1.
+#' @param n.chains1 the number of parallel chains for the model in the first stage; default is 1.
+#' @param n.iter1 integer specifying the total number of iterations in the first stage; default is 1000.
+#' @param n.burnin1 integer specifying how many of n.iter to discard as burn-in in the first stage; default is 5000.
+#' @param n.thin1 integer specifying the thinning of the chains in the first stage; default is 1.
+#' @param n.chains2 the number of parallel chains for the model in the second stage; default is 1.
+#' @param n.iter2 integer specifying the total number of iterations in the second stage; default is 1000.
+#' @param n.burnin2 integer specifying how many of n.iter to discard as burn-in in the second stage; default is 5000.
+#' @param n.thin2 integer specifying the thinning of the chains in the second stage; default is 1.
+#' @param simplify Logical; the option for simplifying the use of CS and DS; default is TRUE.
 #' @param DIC Logical; if TRUE (default), compute deviance, pD, and DIC. The rule pD=var(deviance) / 2 is used.
 #' @param quiet Logical, whether to suppress stdout in jags.model().
 #'
@@ -50,8 +55,11 @@
 
 
 VS <- function(formFixed, formRandom, formGroup, formSurv, nmark, K1 = K1, K2 = K2,
-               model = model, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
-               n.thin = max(1, floor((n.iter - n.burnin) / 1000)), Obstime = "obstime", Method = "DS", ncl = ncl,
+               model = model, n.chains1 = n.chains, n.iter1 = n.iter, n.burnin1 = floor(n.iter1 / 2),
+               n.thin1 = max(1, floor((n.iter1 - n.burnin1) / 1000)),
+               n.chains2 = n.chains, n.iter2 = n.iter, n.burnin2 = floor(n.iter2 / 2),
+               n.thin2 = max(1, floor((n.iter2 - n.burnin2) / 1000)),
+               Obstime = "obstime", Method = "DS", ncl = ncl, simplify= TRUE,
                DIC = TRUE, quiet = FALSE, dataLong, dataSurv) {
   j <- 1:nmark
   boot_fx <- function(j) {
@@ -59,8 +67,8 @@ VS <- function(formFixed, formRandom, formGroup, formSurv, nmark, K1 = K1, K2 = 
       formFixed = formFixed[[j]], formRandom = formRandom[[j]],
       formGroup = formGroup[[j]], formSurv = formSurv, dataLong = dataLong,
       dataSurv = dataSurv, K = K1, model = model[[j]], Obstime = Obstime,
-      n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin,
-      n.thin = n.thin,
+      n.chains = n.chains1, n.iter = n.iter1, n.burnin = n.burnin1,
+      n.thin = n.thin1,
       DIC = DIC, quiet = quiet
     )
 
@@ -70,12 +78,7 @@ VS <- function(formFixed, formRandom, formGroup, formSurv, nmark, K1 = K1, K2 = 
 
   results <- parallel::mclapply(j, boot_fx, mc.cores = ncl)
 
-  print(results[[1]]$PMean$linearpred)
-  print(results[[2]]$PMean$linearpred)
-  print(results[[3]]$PMean$linearpred)
-  print(length(results[[1]]$PMean$linearpred))
-  print(length(results[[2]]$PMean$linearpred))
-  print(length(results[[3]]$PMean$linearpred))
+
   #############
   gamma <- sigma <- c()
   K <- K2
@@ -244,8 +247,6 @@ VS <- function(formFixed, formRandom, formGroup, formSurv, nmark, K1 = K1, K2 = 
 
   model_S2CS <- "model{
 
-  # Scaling Gauss-Kronrod/Legendre quadrature
-
   for(k in 1:n){
 # Scaling Gauss-Kronrod/Legendre quadrature
   for(j in 1:K){
@@ -382,6 +383,142 @@ VS <- function(formFixed, formRandom, formGroup, formSurv, nmark, K1 = K1, K2 = 
 
 }"
 
+  model_S2CS0 <- "model{
+
+  for(k in 1:n){
+# Scaling Gauss-Kronrod/Legendre quadrature
+  for(j in 1:K){
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+  }
+    #
+    for(l in 1:C){
+      Alpha0[k,l]<-  inprod(betaS[l,1:NbetasS],XS[k,1:NbetasS])+inprod(alpha[l,],LP1[k,])
+      Alpha1[k,l]<- inprod(alpha[l,],LP2[k,])
+      Alpha2[k,l]<- inprod(alpha[l,],LP3[k,])
+
+      haz[k,l]<- ((h[1,l]*step(s[1]-Time[k]))+
+                    (h[2,l]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+                    (h[3,l]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+                    (h[4,l]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+                    (h[5,l]*step(Time[k]-s[4])))*
+        exp(inprod(betaS[l,1:NbetasS],XS[k,1:NbetasS])+inprod(alpha[l,],mu1[k,]))
+
+
+      for(j in 1:K){
+
+        chaz[k,j,l]<-  ((h[1,l]*step(s[1]-xk11[k,j]))+
+                          (h[2,l]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+                          (h[3,l]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+                          (h[4,l]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+                          (h[5,l]*step(xk11[k,j]-s[4])))*exp(Alpha0[k,l]+Alpha1[k,l]*xk11[k,j]+Alpha2[k,l]*pow(xk11[k,j],2))
+      }
+      logSurv[k,l]<- -inprod(wk11[k,],chaz[k,,l])
+      phi1[k,l]<--equals(CR[k],l)*log(haz[k,l])-logSurv[k,l]
+    }
+    #Definition of the survival log-likelihood using zeros trick
+    phi[k]<-100000+sum(phi1[k,])
+    zeros[k]~dpois(phi[k])
+  }
+  #Prior distributions
+  for(k in 1:NbetasS){
+    for(l in 1:C){
+      betaS[l,k]<-xi1[l,k]*B11[l,k]+ (1- xi1[l,k])*B21[l,k]
+      B11[l,k]~dnorm(0,0.001)
+      B21[l,k]~dnorm(0,1000)
+      xi1[l,k] ~ dbern(kappa1[l,k])
+      kappa1[l,k]~dbeta(.1,.1)
+      lBFDR1[l,k]<- 1-xi1[l,k]
+
+
+    }}
+
+  for(j in 1:J){
+    for(l in 1:C){
+      h[j,l]~dgamma(0.1,0.1)
+    }}
+
+
+    for(j in 1:nmark){
+    for(l in 1:C){
+     alpha[l,j]<-xi2[l,j]*B12[l,j]+ (1- xi2[l,j])*B22[l,j]
+      B12[l,j]~dnorm(0,0.001)
+      B22[l,j]~dnorm(0,1000)
+      xi2[l,j] ~ dbern(kappa2[l,j])
+      kappa2[l,j]~dbeta(.1,.1)
+      lBFDR2[l,j]<- 1-xi2[l,j]
+  }}
+
+}"
+  ######
+  model_S2DS0 <- "model{
+
+
+  for(k in 1:n){
+    # Scaling Gauss-Kronrod/Legendre quadrature
+  for(j in 1:K){
+      xk11[k,j]<-(xk[j]+1)/2*Time[k]
+      wk11[k,j]<- wk[j]*Time[k]/2
+  }
+    #
+    for(l in 1:C){
+      Alpha0[k,l]<-  inprod(betaS[l,1:NbetasS],XS[k,1:NbetasS])+inprod(alpha[l,],LP1[k,])
+      Alpha1[k,l]<- inprod(alpha[l,],LP2[k,])
+      Alpha2[k,l]<- inprod(alpha[l,],LP3[k,])
+
+      haz[k,l]<- ((h[1,l]*step(s[1]-Time[k]))+
+                    (h[2,l]*step(Time[k]-s[1])*step(s[2]-Time[k]))+
+                    (h[3,l]*step(Time[k]-s[2])*step(s[3]-Time[k]))+
+                    (h[4,l]*step(Time[k]-s[3])*step(s[4]-Time[k]))+
+                    (h[5,l]*step(Time[k]-s[4])))*
+        exp(inprod(betaS[l,1:NbetasS],XS[k,1:NbetasS])+inprod(alpha[l,],mu1[k,]))
+
+
+      for(j in 1:K){
+        chaz[k,j,l]<-  ((h[1,l]*step(s[1]-xk11[k,j]))+
+                          (h[2,l]*step(xk11[k,j]-s[1])*step(s[2]-xk11[k,j]))+
+                          (h[3,l]*step(xk11[k,j]-s[2])*step(s[3]-xk11[k,j]))+
+                          (h[4,l]*step(xk11[k,j]-s[3])*step(s[4]-xk11[k,j]))+
+                          (h[5,l]*step(xk11[k,j]-s[4])))*exp(Alpha0[k,l]+Alpha1[k,l]*xk11[k,j]+Alpha2[k,l]*pow(xk11[k,j],2))
+      }
+      logSurv[k,l]<- -inprod(wk11[k,],chaz[k,,l])
+      phi1[k,l]<--equals(CR[k],l)*log(haz[k,l])-logSurv[k,l]
+    }
+    #Definition of the survival log-likelihood using zeros trick
+    phi[k]<-100000+sum(phi1[k,])
+    zeros[k]~dpois(phi[k])
+  }
+  #Prior distributions
+  for(k in 1:NbetasS){
+    for(l in 1:C){
+      betaS[l,k]<-ind1[l,k]*B21[l,k]
+      ind1[l,k] <- equals(xi1[l,k], 0)
+      xi1[l,k] ~ dbern(kappa1[l,k])
+      kappa1[l,k]~dbeta(.01,.01)
+      B21[l,k]~dnorm(0,0.001)
+      lBFDR1[l,k]<- 1-ind1[l,k]
+
+    }}
+
+  for(j in 1:J){
+    for(l in 1:C){
+      h[j,l]~dgamma(0.1,0.1)
+    }}
+
+
+  for(j in 1:nmark){
+    for(l in 1:C){
+      alpha[l,j]<-ind2[l,j]*B22[l,j]
+      ind2[l,j] <- equals(xi2[l,j], 0)
+      xi2[l,j] ~ dbern(kappa2[l,j])
+      kappa2[l,j]~dbeta(.01,.01)
+      B22[l,j]~dnorm(0,0.001)
+      lBFDR2[l,j]<- 1-ind2[l,j]
+    }}
+
+}"
+
+
 
 
   C <- length(unique(CR)) - 1
@@ -407,19 +544,26 @@ VS <- function(formFixed, formRandom, formGroup, formSurv, nmark, K1 = K1, K2 = 
     model.file <- textConnection(model_S2DS)
     i.jags <- i.jagsDS
   }
-
-
+if(simplify==simplify){
+  if (Method == "CS") {
+    model.file <- textConnection(model_S2CS0)
+    i.jags <- i.jagsCS
+  } else {
+    model.file <- textConnection(model_S2DS0)
+    i.jags <- i.jagsDS
+  }
+}
   step2_unijm <- jagsUI::jags(
     data = d.jags,
     inits=i.jags,
     parameters.to.save = parameters,
     model.file = model.file,
-    n.chains = n.chains,
+    n.chains = n.chains2,
     parallel = FALSE,
     n.adapt = FALSE,
-    n.iter = n.iter,
-    n.burnin = n.burnin,
-    n.thin = n.thin,
+    n.iter = n.iter2,
+    n.burnin = n.burnin2,
+    n.thin = n.thin2,
     DIC = TRUE
   )
 

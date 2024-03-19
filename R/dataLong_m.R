@@ -3,7 +3,7 @@
 #' Simulated data were generated in which "Y1",...,"Y10" follows a Gaussian distribution, "obstime" represents the observed time with some covariates.
 #'
 #'
-#' @name dataLong
+#' @name dataLong_m
 #' @format A data frame which contains id, obstime, x1, x2, w1, w2, and Y1,...,Y10.
 #' \describe{
 #'   \item{id}{patients identifier}
@@ -24,4 +24,4 @@
 #'   \item{x2}{a binary covariate}
 #' }
 #' @seealso \code{\link{UJM}}
-"dataLong"
+"dataLong_m"

@@ -475,11 +475,11 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
 
 
 
-  data_Long_s <- dataLong[dataLong$obstime < s, ]
+  data_Long_s <- dataLong[dataLong$obstime <= s, ]
 
   X <- Z <- Xv <- Zv <- Nb <- list()
   indB <- indtime <- list()
-  # for (j in 1:nmark) {
+
   bhat_mean <- bhat_chain <- list()
   for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
     if (model[[j]] == "intercept") {
@@ -710,13 +710,13 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
   ###################################
   n2 <- dim(dataSurv)[1]
   sigma <- c()
-  mu1 <- matrix(0, n2, nmark)
+ # mu1 <- matrix(0, n2, nmark)
   betaL <- b <- list()
 
   for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
     betaL[[j]] <- object$sim_step1[[j]]$PMean$beta
     sigma <- append(sigma, object$sim_step1[[j]]$PMean$sigma)
-    mu1[,j]<- object$sim_step1[[j]]$PMean$linearpred
+   # mu1[,j]<- object$sim_step1[[j]]$PMean$linearpred
     b[[j]] <- bhat_mean[[j]]
   }
   indtime <- nindtime <- list()
