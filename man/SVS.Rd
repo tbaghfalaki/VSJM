@@ -80,6 +80,11 @@ DP <- DP(VS, Step2,
 
 
 
+MCDP <- MCDP(VS, Step2,
+             Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 20, n.burnin = 10,
+             n.thin = 1,cause_main=1, mi=5,
+             DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
+)
 ######################################################################
 \dontrun{
 library(DPCri);library(survival)
@@ -88,11 +93,6 @@ Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
          CR = dataSurv_v$CR, P = DP$DP[,2], cause = 1)
 
 
-MCDP <- MCDP(VS, Step2,
-             Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 20, n.burnin = 10,
-             n.thin = 1,cause_main=1, mi=5,
-             DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
-)
 
 Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
          CR = dataSurv_v$CR, P = MCDP$DP[,2], cause = 1)
