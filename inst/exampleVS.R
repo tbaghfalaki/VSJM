@@ -56,12 +56,22 @@ DP <- DP(VS, Step2,
 
 
 
+MCDP <- MCDP(VS, Step2,
+             Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 20, n.burnin = 10,
+             n.thin = 1,cause_main=1, mi=5,
+             DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
+)
 ######################################################################
 \dontrun{
 library(DPCri);library(survival)
 
 Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
          CR = dataSurv_v$CR, P = DP$DP[,2], cause = 1)
+
+
+
+Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+         CR = dataSurv_v$CR, P = MCDP$DP[,2], cause = 1)
 
 ######################################################################
 rm(list=ls())
@@ -100,9 +110,9 @@ model <- list("intercept", "linear", "quadratic")
 
 
 VS <- VS(formFixed, formRandom, formGroup, formSurv,
-         nmark = 3, K1 = 15, K2 = 15,
-         model = model, n.chains1 = 1, n.iter1 = 30, n.burnin1 = 10,
-         n.thin1 = 1,  n.chains2 = 1, n.iter2 = 30, n.burnin2 = 10,
+         nmark = 2, K1 = 15, K2 = 15,
+         model = model, n.chains1 = 2, n.iter1 = 30, n.burnin1 = 10,
+         n.thin1 = 1,  n.chains2 = 2, n.iter2 = 30, n.burnin2 = 10,
          n.thin2 = 1, simplify=TRUE, Obstime = "obstime", Method = "DS", ncl = 2,
          DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
 )
@@ -110,31 +120,51 @@ VS <- VS(formFixed, formRandom, formGroup, formSurv,
 SVS <- SVS(VS)
 
 Step2 <- VS2(VS,
-             Method = "LBFDR", n.chains = 2, n.iter = 100, n.burnin = 50,
+             Method = "LBFDR", n.chains = 2, n.iter = 30, n.burnin = 20,
              n.thin = 1, dataLong = dataLong_t, dataSurv = dataSurv_t
 )
 
 DP <- DP(VS, Step2,
-         Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 100, n.burnin = 50,
+         Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 30, n.burnin = 20,
          n.thin = 1,cause_main=1,
          DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )
 
 
 Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
-         CR = dataSurv_v$CR, P = DP$DP[,2], cause = 1)
+         CR = dataSurv_v$CR, P =DP$DP$est, cause = 1)
+
+
+MCDP <- MCDP(VS, Step2,
+         Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 20, n.burnin = 10,
+         n.thin = 1,cause_main=1, mi=5,
+         DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
+)
+
+Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+         CR = dataSurv_v$CR, P = MCDP$DP$est, cause = 1)
 
 ######################################################################
 
   rm(list=ls())
   set.seed(2)
-  INDTRAIN=sample(dataSurv$id,.9*(dim(dataSurv)[1]))
+  INDTRAIN=sample(dataSurv$id,.5*(dim(dataSurv)[1]))
+  INDVALID <- dataSurv$id[-INDTRAIN]
+
   dataLong_t=subset(dataLong,
                     dataLong$id %in% INDTRAIN)
 
   dataSurv_t=subset(dataSurv,
                     dataSurv$id %in% INDTRAIN)
   names(dataSurv_t)
+  dataLong_v <- subset(
+    dataLong,
+    dataLong$id %in% INDVALID
+  )
+  dataSurv_v <- subset(
+    dataSurv,
+    dataSurv$id %in% INDVALID
+  )
   formFixed <- list(
     Y1 ~ obstime + x1 + x2, Y2 ~ obstime + x1 + x2, Y3 ~ obstime + x1 + x2,
     Y4 ~ obstime + x1 + x2, Y5 ~ obstime + x1 + x2, Y6 ~ obstime + x1 + x2,
@@ -154,25 +184,45 @@ Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
 
 
 
-  VS_DS <- VS(formFixed, formRandom, formGroup, formSurv,
-              nmark = 10, K1 = 15, K2 = 15,
-              model = model, n.chains = 1, n.iter = 2000, n.burnin = 1000,
-              n.thin = 1, Obstime = "obstime", Method = "DS",ncl=4,
-              DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
+
+  VS <- VS(formFixed, formRandom, formGroup, formSurv,
+           nmark = 10, K1 = 15, K2 = 15,
+           model = model, n.chains1 = 2, n.iter1 = 20, n.burnin1 = 10,
+           n.thin1 = 1,  n.chains2 = 2, n.iter2 = 20, n.burnin2 = 10,
+           n.thin2 = 1, simplify=TRUE, Obstime = "obstime", Method = "DS", ncl = 2,
+           DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
   )
 
-  SVS_DS <- SVS(VS_DS)
+  SVS <- SVS(VS)
 
-
-
-  VS_CS <- VS(formFixed, formRandom, formGroup, formSurv,
-              nmark = 10, K1 = 15, K2 = 15,
-              model = model, n.chains = 1, n.iter = 2000, n.burnin = 1000,
-              n.thin = 1, Obstime = "obstime", Method = "CS",
-              DIC = TRUE, quiet = FALSE, dataLong, dataSurv
+  Step2 <- VS2(VS,
+               Method = "LBFDR", n.chains = 2, n.iter = 20, n.burnin = 10,
+               n.thin = 1, dataLong = dataLong_t, dataSurv = dataSurv_t
   )
 
-  SVS_CS <- SVS(VS_CS)
+  DP <- DP(VS, Step2,
+           Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 30, n.burnin = 20,
+           n.thin = 1,cause_main=1,
+           DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
+  )
+
+
+  Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+           CR = dataSurv_v$CR, P =DP$DP$est, cause = 1)
+
+
+  MCDP <- MCDP(VS, Step2,
+               Method = "LBFDR", s = 0, t = 0.5, n.chains = 1, n.iter = 20, n.burnin = 10,
+               n.thin = 1,cause_main=1, mi=5,
+               DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
+  )
+
+  Criteria(s = 0, t = 0.5, Survt = dataSurv_v$survtime,
+           CR = dataSurv_v$CR, P = MCDP$DP$est, cause = 1)
+
+
+
+
 
 }
 

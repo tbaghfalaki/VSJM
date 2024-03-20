@@ -1,11 +1,11 @@
-#'  Dynamic prediction
+#'  Monte-Carlo Approximation of Dynamic prediction
 #'
 #' @description
-#' Dynamic prediction for VSJM
+#' Monte-Carlo approximation ofDynamic prediction for VSJM
 #'
 #'
 #' @details
-#' Estimate DP for joint modeling based on VS
+#' Estimate Monte-Carlo approximation of DP for joint modeling based on VS
 #'
 #' @param object an object inheriting from class VS
 #' @param object2 an object inheriting from class VS2
@@ -15,6 +15,7 @@
 #' @param s the landmark time for prediction
 #' @param t the window of prediction for prediction
 #' @param cause_main the main cause for prediction
+#' @param mi the number of multiple imputation for Monte-Carlo approximation; default is 10.
 #' @param n.chains the number of parallel chains for the model; default is 1.
 #' @param n.iter integer specifying the total number of iterations; default is 1000.
 #' @param n.burnin integer specifying how many of n.iter to discard as burn-in ; default is 5000.
@@ -43,7 +44,8 @@
 #' @md
 #' @export
 
-DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause_main, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
+MCDP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause_main, mi=10,
+                 n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                n.thin = max(1, floor((n.iter - n.burnin) / 1000)),
                DIC = TRUE, quiet = FALSE, dataLong, dataSurv) {
   Dt <- t
@@ -470,25 +472,86 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
   delta <- nnet::class.ind(arules::discretize(Time, method = "fixed", c(0, peice, max(Time))))
 
 
-
-
-
   data_Long_s <- dataLong[dataLong$obstime <= s, ]
 
+  DP_tot=NULL
+  for(ttt in 1:mi){
   X <- Z <- Xv <- Zv <- Nb <- list()
   indB <- indtime <- list()
-
   bhat_mean <- bhat_chain <- list()
   for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
+
+    ###############################   ###############################  ###############################
+    betaLmc <- object$sim_step1[[j]]$sim$beta
+    gamma1mc <- object$sim_step1[[j]]$sim$alpha
+    sigma1mc <- object$sim_step1[[j]]$sim$sigma
+
+    Sample=sample(1:length(sigma1mc),mi)
+
+    betaSmc <- object$sim_step1[[j]]$sim$gamma
+    Sigmamc <- object$sim_step1[[j]]$sim$Sigma
+    hmc <- object$sim_step1[[j]]$sim$h
+    ###############################  ###############################  ###############################
+    if(is.matrix(betaLmc)==TRUE){
+      betaLmc=betaLmc[Sample,]
+    }else{
+      betaLmc=betaLmc[Sample]
+    }
+    gamma1mc=gamma1mc[Sample,]
+    sigma1mc=sigma1mc[Sample]
+    if(is.array(betaSmc)==TRUE){
+      betaSmc=betaSmc[Sample,,]
+    }else{
+      betaSmc=betaSmc[Sample,]
+    }
+
+    if(is.array(Sigmamc)==TRUE){
+      Sigmamc=Sigmamc[Sample,,]
+    }else{
+      Sigmamc=Sigmamc[Sample]
+    }
+
+    hmc=hmc[Sample,,]
+
+
+
+
+    if(is.matrix(betaLmc)==TRUE){
+      betaL=betaLmc[ttt,]
+    }else{
+      betaL=betaLmc[ttt]
+    }
+
+    gamma1 <- gamma1mc[ttt,]
+    sigma1 <- sigma1mc[ttt]
+    h <- hmc[ttt,,]
+
+
+
+    if(is.array(betaSmc)==TRUE){
+      betaS=betaSmc[ttt,,]
+    }else{
+      betaS=betaSmc[ttt,]
+    }
+
+    if(is.array(Sigmamc)==TRUE){
+      Sigma=Sigmamc[ttt,,]
+    }else{
+      Sigma=Sigmamc[ttt]
+    }
+
+
+    ###############################  ###############################  ###############################
+
+
     if (model[[j]] == "intercept") {
       data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
       y <- data_long[all.vars(formFixed[[j]])][, 1]
       #data_long <- data_long[is.na(y) == FALSE, ]
       #y <- data_long[all.vars(formFixed[[j]])][, 1]
-
-      mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
-      X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
-      mfU <- stats::model.frame(formRandom[[j]], data = data_long, na.action = NULL)
+      mfX <- stats::model.frame(formFixed[[j]], data = data_long , na.action = NULL)
+      X[[j]] <- stats::model.matrix(formFixed[[j]], mfX , na.action = NULL)
+      mfU <- stats::model.frame(formRandom[[j]], data = data_long , na.action = NULL)
       id <- as.integer(data_long[all.vars(formGroup[[j]])][, 1])
       n2 <- length(unique(id))
       n <- length(id)
@@ -595,13 +658,7 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
       }
     }
     parameters <- c("b")
-    ###############################
-    betaL <- object$sim_step1[[j]]$PMean$beta
-    betaS <- object$sim_step1[[j]]$PMean$gamma
-    gamma1 <- object$sim_step1[[j]]$PMean$alpha
-    sigma1 <- object$sim_step1[[j]]$PMean$sigma
-    Sigma <- object$sim_step1[[j]]$PMean$Sigma
-    h <- object$sim_step1[[j]]$PMean$h
+
     #### Data
 
 
@@ -667,7 +724,7 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
           Sigma = Sigma, h = h,
           n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
-          CR = CR,  mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
+          CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
           s = peice, xk = xk, wk = wk, K = K, KK = KK
         )
 
@@ -721,11 +778,11 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
   indtime <- nindtime <- list()
   for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
     indB <- 1:dim(X[[j]])[2]
-    if (model[[j]] == "quadratic") {
-      indtime[[j]] <- indB[colnames(X[[j]]) %in% c(Obstime, Obstime2)]
-
-    } else {
+    if (model[[j]] != "quadratic") {
       indtime[[j]] <- indB[colnames(X[[j]]) %in% Obstime]
+    }
+    if (model[[j]] == "quadratic"){
+      indtime[[j]] <- indB[colnames(X[[j]]) %in% c(Obstime, Obstime2)]
     }
     nindtime[[j]] <- c(1:dim(X[[j]])[2])[-indtime[[j]]]
   }
@@ -856,10 +913,15 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
   #####################
   DP <- NUM / DENOM
   #####################
-  DP_last=cbind(unique(id), DP)
-  colnames(DP_last)=c("id","est")
-  DP_last=data.frame(DP_last)
+  DP_tot=rbind(DP_tot,DP)
+  }
 
-  list(DP = DP_last, s = s, t = Dt)
+  DP=apply(DP_tot,2,mean)
+  DPQ=t(apply(DP_tot,2,quantile,c(0.025,0.975)))
+
+  DP_last=cbind(unique(id), DP,DPQ)
+  colnames(DP_last)=c("id","est","lower","upper")
+  DP_last=data.frame(DP_last)
+  list(DP =DP_last, s = s, t = Dt)
 }
 
