@@ -40,9 +40,31 @@
 #'
 #' @md
 #' @export
-VS2 <- function(object, Method = "LBFDR", n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
+VS2n <- function(object, Method = "LBFDR", n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                 n.thin = max(1, floor((n.iter - n.burnin) / 1000)),
                 DIC = TRUE, quiet = FALSE, dataLong, dataSurv) {
+  LBFDR2 <- object$LBFDRY
+  BF2 <- object$BFY
+
+  I_LBFDR_alpha <- 1 * (LBFDR2 < 0.05)
+  I_BF_alpha <- 1 * (BF2 > 1)
+  if (Method == "LBFDR") {
+    I_alpha <- I_LBFDR_alpha
+  } else {
+    I_alpha <- I_BF_alpha
+  }
+
+  LBFDR1 <- object$LBFDRX
+  BF1 <- object$BFX
+
+  I_LBFDR_betaS <- 1 * (LBFDR1 < 0.05)
+  I_BF_betaS <- 1 * (BF1 > 1)
+  if (Method == "LBFDR") {
+    I_betaS <- I_LBFDR_betaS
+  } else {
+    I_betaS <- I_BF_betaS
+  }
+  #######
   formFixed <- object$formFixed
   formRandom <- object$formRandom
   formGroup <- object$formGroup
@@ -67,28 +89,7 @@ VS2 <- function(object, Method = "LBFDR", n.chains = n.chains, n.iter = n.iter, 
   n <- dim(dataSurv)[1]
   mu1 <- object$mu1
   #######
-  LBFDR2 <- object$LBFDRY
-  BF2 <- object$BFY
 
-  I_LBFDR_alpha <- 1 * (LBFDR2 < 0.05)
-  I_BF_alpha <- 1 * (BF2 > 1)
-  if (Method == "LBFDR") {
-    I_alpha <- I_LBFDR_alpha
-  } else {
-    I_alpha <- I_BF_alpha
-  }
-
-  LBFDR1 <- object$LBFDRX
-  BF1 <- object$BFX
-
-  I_LBFDR_betaS <- 1 * (LBFDR1 < 0.05)
-  I_BF_betaS <- 1 * (BF1 > 1)
-  if (Method == "LBFDR") {
-    I_betaS <- I_LBFDR_betaS
-  } else {
-    I_betaS <- I_BF_betaS
-  }
-  #######
   Lp1 <- object$Lp1
   Lp2 <- object$Lp2
   Lp3 <- object$Lp3
@@ -99,11 +100,7 @@ VS2 <- function(object, Method = "LBFDR", n.chains = n.chains, n.iter = n.iter, 
     LP2[, , l] <- Lp2
     LP3[, , l] <- Lp3
   }
-  for (l in 1:C) {
-    LP1[, , l] <- LP1[, , l] * matrix(rep(I_alpha[l, ], n), nrow = n, byrow = TRUE)
-    LP2[, , l] <- LP2[, , l] * matrix(rep(I_alpha[l, ], n), nrow = n, byrow = TRUE)
-    LP3[, , l] <- LP3[, , l] * matrix(rep(I_alpha[l, ], n), nrow = n, byrow = TRUE)
-  }
+
   ########## Step_2 without variable selection  ##############
   model_S2 <- "model{
   for(k in 1:n){
@@ -140,16 +137,15 @@ VS2 <- function(object, Method = "LBFDR", n.chains = n.chains, n.iter = n.iter, 
     zeros[k]~dpois(phi[k])
   }
   #Prior distributions
-  for(k in 1:NbetasS){
+
+
+for(k in 1:NbetasS){
     for(l in 1:C){
-      betaS1[l,k]~dnorm(0,0.0001)
+      betaS[l,k]<-I_betaS[l,k]*B11[l,k]
+      B11[l,k]~dnorm(0,0.0001)
     }}
 
 
-    for(k in 1:NbetasS){
-    for(l in 1:C){
-      betaS[l,k]<-equals(I_betaS[l,k],1)* betaS1[l,k]
-    }}
 
   for(j in 1:J){
     for(l in 1:C){
@@ -157,16 +153,12 @@ VS2 <- function(object, Method = "LBFDR", n.chains = n.chains, n.iter = n.iter, 
     }}
 
 
-    for(j in 1:nmark){
+for(k in 1:NbetasS){
     for(l in 1:C){
-     alpha1[l,j]~dnorm(0,0.0001)
-  }}
+      alpha[l,k]<-I_alpha[l,k]*a11[l,k]
+      a11[l,k]~dnorm(0,0.0001)
+    }}
 
-
-for(j in 1:nmark){
-    for(l in 1:C){
-     alpha[l,j]<-equals(I_alpha[l,j],1)* alpha1[l,j]
-  }}
 
 }"
 
@@ -353,3 +345,4 @@ for(j in 1:nmark){
     Estimation = results, DIC = DIC
   )
 }
+

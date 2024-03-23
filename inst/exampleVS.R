@@ -41,6 +41,8 @@ VS <- VS(formFixed, formRandom, formGroup, formSurv,
   DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
 )
 
+
+
 SVS <- SVS(VS)
 
 Step2 <- VS2(VS,
@@ -54,7 +56,11 @@ DP <- DP(VS, Step2,
   DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )
 
-
+DP_VS<- DP_VSVS(VS,
+Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 100, n.burnin = 50,
+n.thin = 1,cause_main=1,
+DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
+)
 
 MCDP <- MCDP(VS, Step2,
              Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 20, n.burnin = 10,

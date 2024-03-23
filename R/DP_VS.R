@@ -1,4 +1,4 @@
-#'  Dynamic prediction
+#'  Dynamic prediction type 1
 #'
 #' @description
 #' Dynamic prediction for VSJM
@@ -8,8 +8,6 @@
 #' Estimate DP for joint modeling based on VS
 #'
 #' @param object an object inheriting from class VS
-#' @param object2 an object inheriting from class VS2
-#' @param Method the method for variable selection including "LBFDR" for LBFDR and "BF" for Bayes factor.
 #' @param dataLong data set of observed longitudinal variables.
 #' @param dataSurv data set of observed survival variables.
 #' @param s the landmark time for prediction
@@ -43,7 +41,7 @@
 #' @md
 #' @export
 
-DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause_main, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
+DP_VS <- function(object, s = s, t = t, cause_main=cause_main, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                n.thin = max(1, floor((n.iter - n.burnin) / 1000)),
                DIC = TRUE, quiet = FALSE, dataLong, dataSurv) {
   Dt <- t
@@ -60,27 +58,7 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
   mu1 <- object$mu1
   peice<- object$peice
   #######
-  LBFDR2 <- object$LBFDRY
-  BF2 <- object$BFY
 
-  I_LBFDR_alpha <- 1 * (LBFDR2 < 0.05)
-  I_BF_alpha <- 1 * (BF2 > 1)
-  if (Method == "LBFDR") {
-    I_alpha <- I_LBFDR_alpha
-  } else {
-    I_alpha <- I_BF_alpha
-  }
-
-  LBFDR1 <- object$LBFDRX
-  BF1 <- object$BFX
-
-  I_LBFDR_betaS <- 1 * (LBFDR1 < 0.05)
-  I_BF_betaS <- 1 * (BF1 > 1)
-  if (Method == "LBFDR") {
-    I_betaS <- I_LBFDR_betaS
-  } else {
-    I_betaS <- I_BF_betaS
-  }
 
   ########### univariate_jm_random_effect_estimation
 
@@ -480,7 +458,7 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
   indB <- indtime <- list()
 
   bhat_mean <- bhat_chain <- list()
-  for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
+  for (j in c(1:nmark)) {
     if (model[[j]] == "intercept") {
       data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
       y <- data_long[all.vars(formFixed[[j]])][, 1]
@@ -713,14 +691,14 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
   # mu1 <- matrix(0, n2, nmark)
   betaL <- b <- list()
 
-  for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
+  for (j in c(1:nmark)) {
     betaL[[j]] <- object$sim_step1[[j]]$PMean$beta
     sigma <- append(sigma, object$sim_step1[[j]]$PMean$sigma)
     # mu1[,j]<- object$sim_step1[[j]]$PMean$linearpred
     b[[j]] <- bhat_mean[[j]]
   }
   indtime <- nindtime <- list()
-  for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
+  for (j in c(1:nmark)) {
     indB <- 1:dim(X[[j]])[2]
     if (model[[j]] == "quadratic") {
       indtime[[j]] <- indB[colnames(X[[j]]) %in% c(Obstime, Obstime2)]
@@ -732,7 +710,7 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
   }
   LP1 <- LP2 <- LP3 <- matrix(0, n2, nmark)
   for (i in 1:n2) {
-    for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
+    for (j in c(1:nmark)) {
       if (is.matrix(Xv[[j]]) == TRUE) {
         if (model[[j]] == "intercept") {
           LP1[i, j] <- betaL[[j]][nindtime[[j]]] %*% Xv[[j]][i, ] + b[[j]][i]
@@ -761,9 +739,13 @@ DP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause
   }
 
   ########################### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-  betaS <- object2$Estimation$Survival_model$gamma$Est
-  alpha <- object2$Estimation$Survival_model$alpha$Est
-  h <- object2$Estimation$Survival_model$lambda$Est
+  #betaS <- object$Estimation$Survival_model$gamma$Est
+  #alpha <- object2$Estimation$Survival_model$alpha$Est
+  #h <- object2$Estimation$Survival_model$lambda$Est
+
+  betaS <- object$TDsurvival$mean$betaS
+  alpha <- object$TDsurvival$mean$alpha
+  h <- object$TDsurvival$mean$h
   ########################### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
   xk11 <- wk11 <- matrix(0, n, K)

@@ -55,9 +55,9 @@
 
 
 VS <- function(formFixed, formRandom, formGroup, formSurv, nmark, K1 = K1, K2 = K2,
-               model = model, n.chains1 = n.chains, n.iter1 = n.iter, n.burnin1 = floor(n.iter1 / 2),
+               model = model, n.chains1 = n.chains1, n.iter1 = n.iter1, n.burnin1 = floor(n.iter1 / 2),
                n.thin1 = max(1, floor((n.iter1 - n.burnin1) / 1000)),
-               n.chains2 = n.chains, n.iter2 = n.iter, n.burnin2 = floor(n.iter2 / 2),
+               n.chains2 = n.chains2, n.iter2 = n.iter2, n.burnin2 = floor(n.iter2 / 2),
                n.thin2 = max(1, floor((n.iter2 - n.burnin2) / 1000)),
                Obstime = "obstime", Method = "DS", ncl = ncl, simplify= TRUE,
                DIC = TRUE, quiet = FALSE, dataLong, dataSurv) {
