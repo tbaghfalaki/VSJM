@@ -14,5 +14,5 @@ importFrom("stats","rnorm")
 importFrom("jagsUI","jags")
 importFrom("stats",'runif')
 importFrom("survival","Surv")
-importFrom("parallel","mclapply")
+importFrom("parallelsugar","mclapply")
 

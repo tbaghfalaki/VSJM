@@ -76,7 +76,8 @@ VS <- function(formFixed, formRandom, formGroup, formSurv, nmark, K1 = K1, K2 = 
     list(sim = A1$MCMC, PMean = A1$PMean, Long = A1$Estimation)
   }
 
-  results <- parallel::mclapply(j, boot_fx, mc.cores = ncl)
+  #results <- parallel::mclapply(j, boot_fx, mc.cores = ncl)
+  results <- parallelsugar::mclapply(j, boot_fx, mc.cores = ncl)
 
 
   #############

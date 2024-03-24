@@ -445,10 +445,6 @@ DP_VS <- function(object, s = s, t = t, cause_main=cause_main, n.chains = n.chai
   K <- length(xk) # K-points
   ################
 
-  #peice <- stats::quantile(Time, seq(.2, 0.8, length = 4))
-  delta <- nnet::class.ind(arules::discretize(Time, method = "fixed", c(0, peice, max(Time))))
-
-
 
 
 
@@ -594,7 +590,7 @@ DP_VS <- function(object, s = s, t = t, cause_main=cause_main, n.chains = n.chai
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], id = id2, indtime = indtime[[j]],
           CR = CR, zeros = rep(0, n2),
           s = peice, xk = xk, wk = wk, K = K, KK = KK
@@ -607,7 +603,7 @@ DP_VS <- function(object, s = s, t = t, cause_main=cause_main, n.chains = n.chai
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], Z = Z[[j]], id = id2, indtime = indtime[[j]],
           CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
           s = peice,  xk = xk, wk = wk, K = K, KK = KK
@@ -619,7 +615,7 @@ DP_VS <- function(object, s = s, t = t, cause_main=cause_main, n.chains = n.chai
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], Z = Z[[j]], id = id2, indtime = indtime[[j]],
           CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
           s = peice,  xk = xk, wk = wk, K = K, KK = KK
@@ -632,7 +628,7 @@ DP_VS <- function(object, s = s, t = t, cause_main=cause_main, n.chains = n.chai
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time =rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
           CR = CR, zeros = rep(0, n2),
           s = peice, xk = xk, wk = wk, K = K, KK = KK
@@ -644,7 +640,7 @@ DP_VS <- function(object, s = s, t = t, cause_main=cause_main, n.chains = n.chai
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
           CR = CR,  mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
           s = peice, xk = xk, wk = wk, K = K, KK = KK
@@ -659,7 +655,7 @@ DP_VS <- function(object, s = s, t = t, cause_main=cause_main, n.chains = n.chai
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]],
           nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
           CR = CR,  mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
