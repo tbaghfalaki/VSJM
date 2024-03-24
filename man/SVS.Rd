@@ -70,7 +70,7 @@ VS <- VS(formFixed, formRandom, formGroup, formSurv,
 SVS <- SVS(VS)
 
 Step2 <- VS2(VS,
-  Method = "LBFDR", n.chains = 2, n.iter = 100, n.burnin = 50,
+  Method = "LBFDR", n.chains = 2, n.iter = 30, n.burnin = 20,
   n.thin = 1, dataLong = dataLong_t, dataSurv = dataSurv_t
 )
 
@@ -80,8 +80,7 @@ DP <- DP(VS, Step2,
   DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )
 ### From first stage
-DP_VS<- DP_VS(VS,
-Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 100, n.burnin = 50,
+DP_VS<- DP_VS(VS, s = 0.1, t = 0.5, n.chains = 1, n.iter = 100, n.burnin = 50,
 n.thin = 1,cause_main=1,
 DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )

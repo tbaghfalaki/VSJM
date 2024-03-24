@@ -153,7 +153,7 @@ for(k in 1:NbetasS){
     }}
 
 
-for(k in 1:NbetasS){
+for(k in 1:nmark){
     for(l in 1:C){
       alpha[l,k]<-I_alpha[l,k]*a11[l,k]
       a11[l,k]~dnorm(0,0.0001)
@@ -177,7 +177,7 @@ for(k in 1:NbetasS){
   )
 
   i.jags <- function() {
-    list(alpha1 = matrix(1, C, nmark) * I_alpha, betaS1 = matrix(NA, C, NbetasS) * I_betaS)
+    list(a11 = matrix(1, C, nmark) * I_alpha, B11 = matrix(NA, C, NbetasS) * I_betaS)
   }
 
 
