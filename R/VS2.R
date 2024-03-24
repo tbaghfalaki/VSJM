@@ -40,7 +40,7 @@
 #'
 #' @md
 #' @export
-VS2n <- function(object, Method = "LBFDR", n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
+VS2 <- function(object, Method = "LBFDR", n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                 n.thin = max(1, floor((n.iter - n.burnin) / 1000)),
                 DIC = TRUE, quiet = FALSE, dataLong, dataSurv) {
   LBFDR2 <- object$LBFDRY

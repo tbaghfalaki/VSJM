@@ -61,7 +61,7 @@ VS <- VS(formFixed, formRandom, formGroup, formSurv,
   nmark = 3, K1 = 15, K2 = 15,
   model = model, n.chains1 = 1, n.iter1 = 30, n.burnin1 = 10,
   n.thin1 = 1,  n.chains2 = 1, n.iter2 = 30, n.burnin2 = 10,
-  n.thin2 = 1, simplify=TRUE, Obstime = "obstime", Method = "DS", ncl = 3,
+  n.thin2 = 1, simplify=TRUE, Obstime = "obstime", Method = "DS", ncl = 2,
   DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
 )
 
@@ -79,20 +79,20 @@ DP <- DP(VS, Step2,
   n.thin = 1,cause_main=1,
   DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )
-
-DP_VS<- DP_VSVS(VS,
+### From first stage
+DP_VS<- DP_VS(VS,
 Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 100, n.burnin = 50,
 n.thin = 1,cause_main=1,
 DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )
-
+\dontrun{
 MCDP <- MCDP(VS, Step2,
              Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 20, n.burnin = 10,
              n.thin = 1,cause_main=1, mi=5,
              DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )
 ######################################################################
-\dontrun{
+
 library(DPCri);library(survival)
 
 Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,

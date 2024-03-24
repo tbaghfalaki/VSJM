@@ -1,5 +1,6 @@
 export(UJM)
 export(VS)
+export(VS2)
 export(SVS)
 export(DP)
 export(MCDP)
