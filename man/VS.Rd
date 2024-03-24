@@ -139,7 +139,7 @@ VS <- VS(formFixed, formRandom, formGroup, formSurv,
   nmark = 3, K1 = 15, K2 = 15,
   model = model, n.chains1 = 1, n.iter1 = 30, n.burnin1 = 10,
   n.thin1 = 1,  n.chains2 = 1, n.iter2 = 30, n.burnin2 = 10,
-  n.thin2 = 1, simplify=TRUE, Obstime = "obstime", Method = "DS", ncl = 2,
+  n.thin2 = 1, simplify=TRUE, Obstime = "obstime", Method = "DS", ncl = 3,
   DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
 )
 

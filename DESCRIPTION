@@ -12,7 +12,7 @@ License: GPL (>= 2.0)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.0
-Imports: stats, jagsUI, statmod, survival, nnet, arules, parallel
+Imports: stats, jagsUI, statmod, survival, nnet, arules, parallelsugar
 Depends: R (>= 4.0.0)
 SystemRequirements: JAGS 4.x.y
 
