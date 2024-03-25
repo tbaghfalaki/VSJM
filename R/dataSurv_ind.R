@@ -4,8 +4,12 @@
 #'
 #' @docType data
 #'
+#' @usage data(dataSurv_ind)
 #'
-#' @name dataSurv_m
+#' @keywords datasets
+#'
+#'
+#' @name dataSurv_ind
 #' @format A data frame which contains id, survtime, CR, w1, x1, w2, x2.
 #' \describe{
 #'   \item{id}{patients identifier}
@@ -16,6 +20,5 @@
 #'   \item{w1}{a binary covariate}
 #'   \item{w2}{a continuous covariate}
 #' }
-#' @seealso \code{\link{UJM}}
-"dataSurv_m"
-
+#' @seealso \code{\link{VSJM}}
+"dataSurv_ind"

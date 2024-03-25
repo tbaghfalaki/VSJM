@@ -244,7 +244,7 @@ VS <- function(formFixed, formRandom, formGroup, formSurv, nmark, K1 = K1, K2 = 
   K <- length(xk) # K-points
   ####################### Univariate #######################
   peice <- quantile(Time, seq(.2, 0.8, length = 4))
-  delta <- nnet::class.ind(arules::discretize(Time, method = "fixed", c(0, peice, max(Time))))
+  #delta <- nnet::class.ind(arules::discretize(Time, method = "fixed", c(0, peice, max(Time))))
 
   model_S2CS <- "model{
 
@@ -527,7 +527,7 @@ VS <- function(formFixed, formRandom, formGroup, formSurv, nmark, K1 = K1, K2 = 
   d.jags <- list(
     n = n2, mu1 = mu1, zeros = rep(0, n2), NbetasS = dim(XS)[2], C = C, nmark = nmark,
     LP1 = Lp1, LP2 = Lp2, LP3 = Lp3, Time = Time, CR = CR, XS = XS,
-    s = peice, J = dim(delta)[2], xk = xk, wk = wk, K = K
+    s = peice, J = length(peice)+1, xk = xk, wk = wk, K = K
   )
 
   i.jagsCS <- function() {

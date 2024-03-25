@@ -10,10 +10,10 @@ A data frame which contains id, survtime, CR, w1, x1, w2, x2.
   \item{id}{patients identifier}
   \item{survtime}{survival time (the response variable)}
   \item{CR}{event indicator, 1=the first cause, 2=the second cause, 0=censored}
-  \item{w1}{a continuous covariate}
   \item{x1}{a binary covariate}
+  \item{x2}{a continuous covariate}
+  \item{w1}{a binary covariate}
   \item{w2}{a continuous covariate}
-  \item{x2}{a binary covariate}
 }
 }
 \usage{

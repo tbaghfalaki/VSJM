@@ -91,7 +91,6 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
     ################
 
     peice <- stats::quantile(Time, seq(.2, 0.8, length = 4))
-    delta <- nnet::class.ind(arules::discretize(Time, method = "fixed", c(0, peice, max(Time))))
 
     ########### univariate_jm
     model_fileI1 <- "model{
@@ -279,14 +278,14 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
       n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
       X = X, id = id2, indtime = indtime,
       CR = CR, zeros = rep(0, n2),
-      NbetasL = dim(X)[2], s = peice, J = dim(delta)[2], xk = xk, wk = wk, K = K, KK = KK
+      NbetasL = dim(X)[2], s = peice, J = length(peice)+1, xk = xk, wk = wk, K = K, KK = KK
     )
 
     d.jags <- list(
       n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
       X = X, id = id2, Xv = Xv, indtime = indtime, nindtime = c(1:dim(X)[2])[-indtime],
       CR = CR, zeros = rep(0, n2),
-      NbetasL = dim(X)[2], s = peice, J = dim(delta)[2], xk = xk, wk = wk, K = K, KK = KK
+      NbetasL = dim(X)[2], s = peice, J = length(peice)+1, xk = xk, wk = wk, K = K, KK = KK
     )
     if (is.matrix(Xv) == FALSE) {
       model_fileL_last <- textConnection(model_fileI1)
@@ -640,14 +639,14 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
       n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
       X = X, Z = Z, id = id2, indtime = indtime,
       CR = CR, mub = rep(0, Nb), V = diag(1, Nb), Nb = Nb, zeros = rep(0, n2),
-      NbetasL = dim(X)[2], s = peice, J = dim(delta)[2], xk = xk, wk = wk, K = K, KK = KK
+      NbetasL = dim(X)[2], s = peice, J = length(peice)+1, xk = xk, wk = wk, K = K, KK = KK
     )
 
     d.jags <- list(
       n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
       X = X, Z = Z, id = id2, Xv = Xv, indtime = indtime, nindtime = c(1:dim(X)[2])[-indtime],
       CR = CR, mub = rep(0, Nb), V = diag(1, Nb), Nb = Nb, zeros = rep(0, n2),
-      NbetasL = dim(X)[2], s = peice, J = dim(delta)[2], xk = xk, wk = wk, K = K, KK = KK
+      NbetasL = dim(X)[2], s = peice, J = length(peice)+1, xk = xk, wk = wk, K = K, KK = KK
     )
     if (is.matrix(Xv) == FALSE) {
       model_fileL_last <- textConnection(model_fileL1)
@@ -1018,14 +1017,14 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
       n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
       X = X, Z = Z, id = id2, indtime = indtime,
       CR = CR, mub = rep(0, Nb), V = diag(1, Nb), Nb = Nb, zeros = rep(0, n2),
-      NbetasL = dim(X)[2], s = peice, J = dim(delta)[2], xk = xk, wk = wk, K = K, KK = KK
+      NbetasL = dim(X)[2], s = peice, J = length(peice)+1, xk = xk, wk = wk, K = K, KK = KK
     )
 
     d.jags <- list(
       n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
       X = X, Z = Z, id = id2, Xv = Xv, indtime = indtime, nindtime = c(1:dim(X)[2])[-indtime],
       CR = CR, mub = rep(0, Nb), V = diag(1, Nb), Nb = Nb, zeros = rep(0, n2),
-      NbetasL = dim(X)[2], s = peice, J = dim(delta)[2], xk = xk, wk = wk, K = K, KK = KK
+      NbetasL = dim(X)[2], s = peice, J = length(peice)+1, xk = xk, wk = wk, K = K, KK = KK
     )
     set.seed(2)
     if (is.matrix(Xv) == FALSE) {
