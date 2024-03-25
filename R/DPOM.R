@@ -537,11 +537,6 @@ DPOM <- function(object, N_marker = 1, s = s, t = t, cause_main = cause_main, n.
   }
 
 
-
-
-
-
-
   ########  BUGS code  ########
   M1 <- table(id)
   NbetasS <- dim(XS)[2]
@@ -688,7 +683,7 @@ DPOM <- function(object, N_marker = 1, s = s, t = t, cause_main = cause_main, n.
       if (model == "intercept") {
         LP1[i] <- betaL[nindtime] %*% Xv[i, ] + b[i]
       } else {
-        LP1[i] <- betaL[nindtime[1]] %*% Xv[i, ] + b[i, 1]
+        LP1[i] <- betaL[nindtime] %*% Xv[i, ] + b[i, 1]
       }
     } else {
       if (model == "intercept") {
@@ -721,14 +716,18 @@ DPOM <- function(object, N_marker = 1, s = s, t = t, cause_main = cause_main, n.
   DP <- c()
 
   for (k in 1:n2) {
+
+
+
     for (l in 1:C) {
       Alpha0[k, l] <- betaS[l, ] %*% XS[k, ] + alpha[l] * LP1[k]
       Alpha1[k, l] <- alpha[l] * LP2[k]
       Alpha2[k, l] <- alpha[l] * LP3[k]
     }
 
-    Hazard_cause_main <- function(tpoint) {
-      l <- cause_main
+
+
+    HazardL <- function(tpoint, l) {
       hh <- ((h[1, l] * step(peice[1] - tpoint)) +
         (h[2, l] * step(tpoint - peice[1]) * step(peice[2] - tpoint)) +
         (h[3, l] * step(tpoint - peice[2]) * step(peice[3] - tpoint)) +
@@ -738,19 +737,12 @@ DPOM <- function(object, N_marker = 1, s = s, t = t, cause_main = cause_main, n.
       hh
     }
 
+
+
     CHazard <- function(upoint) {
       Out <- c()
       for (l in 1:C) {
-        HazardL <- function(tpoint) {
-          hh <- ((h[1, l] * step(peice[1] - tpoint)) +
-            (h[2, l] * step(tpoint - peice[1]) * step(peice[2] - tpoint)) +
-            (h[3, l] * step(tpoint - peice[2]) * step(peice[3] - tpoint)) +
-            (h[4, l] * step(tpoint - peice[3]) * step(peice[4] - tpoint)) +
-            (h[5, l] * step(tpoint - peice[4]))) *
-            exp(Alpha0[k, l] + Alpha1[k, l] * tpoint + Alpha2[k, l] * (tpoint^2))
-          hh
-        }
-        Out[l] <- integrate(HazardL, lower = 0, upper = upoint)$value
+        Out[l] <- integrate(HazardL, lower = 0, upper = upoint, l = l)$value
       }
       Out
     }
@@ -759,40 +751,33 @@ DPOM <- function(object, N_marker = 1, s = s, t = t, cause_main = cause_main, n.
     ########
 
     NUM1 <- function(upoint) {
-      ####
       hh_cause_main <- ((h[1, cause_main] * step(peice[1] - upoint)) +
         (h[2, cause_main] * step(upoint - peice[1]) * step(peice[2] - upoint)) +
         (h[3, cause_main] * step(upoint - peice[2]) * step(peice[3] - upoint)) +
         (h[4, cause_main] * step(upoint - peice[3]) * step(peice[4] - upoint)) +
         (h[5, cause_main] * step(upoint - peice[4]))) *
         exp(Alpha0[k, cause_main] + Alpha1[k, cause_main] * upoint + Alpha2[k, cause_main] * (upoint^2))
-      ####
 
-      CHazard <- function(upoint) {
-        Out <- c()
-        for (l in 1:C) {
-          HazardL <- function(tpoint) {
-            hh <- ((h[1, l] * step(peice[1] - tpoint)) +
-              (h[2, l] * step(tpoint - peice[1]) * step(peice[2] - tpoint)) +
-              (h[3, l] * step(tpoint - peice[2]) * step(peice[3] - tpoint)) +
-              (h[4, l] * step(tpoint - peice[3]) * step(peice[4] - tpoint)) +
-              (h[5, l] * step(tpoint - peice[4]))) *
-              exp(Alpha0[k, l] + Alpha1[k, l] * tpoint + Alpha2[k, l] * (tpoint^2))
-            hh
-          }
-          Out[l] <- integrate(HazardL, lower = 0, upper = upoint)$value
-        }
-        Out
+      Out <- c()
+      for (l in 1:C) {
+        Out[l] <- integrate(HazardL, lower = 0, upper = upoint, l = l)$value
       }
-      exp(-sum(CHazard)) * hh_cause_main
+
+
+      AA <- exp(-sum(Out)) * hh_cause_main
+      AA
     }
 
-    NUM1 <- integrate(HazardL, lower = s, upper = s + Dt)$value
+    sss <- runif(50, s, s + Dt)
+
+    NUM <- c()
+    for (k1 in 1:length(sss)) {
+      NUM[k1] <- NUM1(sss[k1])
+    }
+    NUM <- Dt * mean(NUM)
 
 
-
-    #####################
-    DP[k] <- NUM1 / DENOM
+    DP[k] <- NUM / DENOM
   }
   #####################
   DP_last <- cbind(unique(id), DP)
