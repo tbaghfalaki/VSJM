@@ -17,4 +17,5 @@ importFrom("jagsUI","jags")
 importFrom("stats",'runif')
 importFrom("survival","Surv")
 importFrom("parallelsugar","mclapply")
+importFrom("stats", "integrate")
 
