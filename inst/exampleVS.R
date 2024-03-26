@@ -33,7 +33,7 @@ model <- list("intercept", "linear", "quadratic")
 
 
 
-VS <- VS(formFixed, formRandom, formGroup, formSurv,
+  VS <- VS(formFixed, formRandom, formGroup, formSurv,
   nmark = 3, K1 = 15, K2 = 15,
   model = model, n.chains1 = 1, n.iter1 = 30, n.burnin1 = 10,
   n.thin1 = 1,  n.chains2 = 1, n.iter2 = 30, n.burnin2 = 10,
@@ -46,17 +46,17 @@ VS <- VS(formFixed, formRandom, formGroup, formSurv,
 SVS <- SVS(VS)
 
 Step2 <- VS2(VS,
-  Method = "LBFDR", n.chains = 2, n.iter = 30, n.burnin = 20,
+  Method = "LBFDR", n.chains = 2, n.iter = 1000, n.burnin = 500,
   n.thin = 1, dataLong = dataLong_t, dataSurv = dataSurv_t
 )
 
 DP <- DP(VS, Step2,
-  Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 100, n.burnin = 50,
+  Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 1000, n.burnin = 500,
   n.thin = 1,cause_main=1,
   DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )
 ### From first stage
-DP_VS<- DP_VS(VS, s = 0.1, t = 0.5, n.chains = 1, n.iter = 100, n.burnin = 50,
+DP_VS<- DP_VS(VS, s = 0.1, t = 0.5, n.chains = 1, n.iter = 1000, n.burnin = 500,
 n.thin = 1,cause_main=1,
 DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )
@@ -71,12 +71,12 @@ MCDP <- MCDP(VS, Step2,
 library(DPCri);library(survival)
 
 Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
-         CR = dataSurv_v$CR, P = DP$DP[,2], cause = 1)
+         CR = dataSurv_v$CR, P = DP$DP$est, cause = 1)$Cri
 
 
 
 Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
-         CR = dataSurv_v$CR, P = MCDP$DP[,2], cause = 1)
+         CR = dataSurv_v$CR, P = DP_VS$DP$est, cause = 1)$Cri
 
 ######################################################################
 rm(list=ls())

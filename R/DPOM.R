@@ -1,18 +1,18 @@
-#'  Dynamic prediction for one marker JM
+#'  Dynamic prediction for One-marker JM
 #'
 #' @description
-#' Dynamic prediction for One-marker JM
+#' Dynamic prediction utilizing one of the joint models in the first stage.
 #'
 #'
 #' @details
-#' Estimate DP for joint modeling based
+#' It performs risk prediction for one of the joint models in the first stage.
 #'
 #' @param object an object inheriting from class VS
-#' @param N_marker the number of marker
-#' @param dataLong data set of observed longitudinal variables.
-#' @param dataSurv data set of observed survival variables.
+#' @param N_marker the number of marker to be considered.
+#' @param dataLong data set of observed longitudinal variables (validation set).
+#' @param dataSurv data set of observed survival variables (validation set).
 #' @param s the landmark time for prediction
-#' @param t the window of prediction for prediction
+#' @param t the window of prediction
 #' @param cause_main the main cause for prediction
 #' @param n.chains the number of parallel chains for the model; default is 1.
 #' @param n.iter integer specifying the total number of iterations; default is 1000.
@@ -665,7 +665,7 @@ DPOM <- function(object, N_marker = 1, s = s, t = t, cause_main = cause_main, n.
   bhat_chain <- sim1$sims.list$b
 
 
-  ################################### ???
+  ###################################
   n2 <- dim(dataSurv)[1]
   b <- bhat_mean
 
@@ -689,7 +689,7 @@ DPOM <- function(object, N_marker = 1, s = s, t = t, cause_main = cause_main, n.
       if (model == "intercept") {
         LP1[i] <- betaL[nindtime] + b[i]
       } else {
-        LP1[i] <- betaL[nindtime[1]] + b[i, 1]
+        LP1[i] <- betaL[nindtime] + b[i, 1]
       }
     }
     if (model == "intercept") {
@@ -768,15 +768,22 @@ DPOM <- function(object, N_marker = 1, s = s, t = t, cause_main = cause_main, n.
       AA
     }
 
-    sss <- runif(50, s, s + Dt)
-
-    NUM <- c()
-    for (k1 in 1:length(sss)) {
-      NUM[k1] <- NUM1(sss[k1])
+    ####
+    xk1 <- wk1 <- c()
+    for (j in 1:K) {
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk1[j] <- (xk[j] + 1) / 2 * Dt + s
+      wk1[j] <- wk[j] * Dt / 2
     }
-    NUM <- Dt * mean(NUM)
 
 
+    NUM00 <- c()
+    for (j in 1:K) {
+      NUM00[j] <- NUM1(xk1[j])
+    }
+    NUM <- NUM00%*%wk1
+
+    DENOM[DENOM==0]=0.00000001
     DP[k] <- NUM / DENOM
   }
   #####################

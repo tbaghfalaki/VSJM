@@ -744,96 +744,88 @@ DP_VS <- function(object, s = s, t = t, cause_main=cause_main, n.chains = n.chai
   h <- object$TDsurvival$mean$h
   ########################### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-  xk11 <- wk11 <- matrix(0, n, K)
-  for (k in 1:n) {
-    for (j in 1:K) {
-      xk11[k, j] <- (xk[j] + 1) / 2 * s
-      wk11[k, j] <- wk[j] * s / 2
-    }
-  }
-
   step <- function(x) {
-    z <- 0
-    if (x >= 0) (z <- 1)
+    z <- rep(0, length(x))
+    for (k in 1:length(x)) {
+      if (x[k] >= 0) (z[k] <- 1)
+    }
     z
   }
 
-  Alpha0 <- Alpha1 <- Alpha2 <-  CH <- matrix(0, n2, C)
-  chaz <- array(0, c(n2, K, C))
+  Alpha0 <- Alpha1 <- Alpha2 <- matrix(0, n2, C)
+  DP <- c()
+
   for (k in 1:n2) {
+
+
+
     for (l in 1:C) {
-      Alpha0[k, l] <- betaS[l, ] %*% XS[k, ] + alpha[l, ] %*% LP1[k, ]
-      Alpha1[k, l] <- alpha[l, ] %*% LP2[k, ]
-      Alpha2[k, l] <- alpha[l, ] %*% LP3[k, ]
-
-      for (j in 1:K) {
-        chaz[k, j, l] <- ((h[1, l] * step(peice[1] - xk11[k, j])) +
-                            (h[2, l] * step(xk11[k, j] - peice[1]) * step(peice[2] - xk11[k, j])) +
-                            (h[3, l] * step(xk11[k, j] - peice[2]) * step(peice[3] - xk11[k, j])) +
-                            (h[4, l] * step(xk11[k, j] - peice[3]) * step(peice[4] - xk11[k, j])) +
-                            (h[5, l] * step(xk11[k, j] - peice[4]))) * exp(Alpha0[k, l] + Alpha1[k, l] * xk11[k, j] + Alpha2[k, l] * (xk11[k, j]^2))
-      }
-      CH[k, l] <- wk11[k, ] %*% chaz[k, , l]
+      Alpha0[k, l] <- betaS[l, ] %*% XS[k, ] + alpha[l] * LP1[k]
+      Alpha1[k, l] <- alpha[l] * LP2[k]
+      Alpha2[k, l] <- alpha[l] * LP3[k]
     }
-  }
-  DENOM <- exp(-apply(CH, 1, sum))
-  ########
-  haz <- matrix(0, n2, K)
-  NUM <- c()
-  NUM1 <- matrix(0, n2, K)
-  xk1 <- wk1 <- c()
 
-  for (j in 1:K) {
-    # Scaling Gauss-Kronrod/Legendre quadrature
-    xk1[j] <- (xk[j] + 1) / 2 * Dt + s
-    wk1[j] <- wk[j] * Dt / 2
-  }
-  chaz <- array(0, c(n2, K, C))
-  for (k in 1:n2) {
+
+
+    HazardL <- function(tpoint, l) {
+      hh <- ((h[1, l] * step(peice[1] - tpoint)) +
+               (h[2, l] * step(tpoint - peice[1]) * step(peice[2] - tpoint)) +
+               (h[3, l] * step(tpoint - peice[2]) * step(peice[3] - tpoint)) +
+               (h[4, l] * step(tpoint - peice[3]) * step(peice[4] - tpoint)) +
+               (h[5, l] * step(tpoint - peice[4]))) *
+        exp(Alpha0[k, l] + Alpha1[k, l] * tpoint + Alpha2[k, l] * (tpoint^2))
+      hh
+    }
+
+
+
+    CHazard <- function(upoint) {
+      Out <- c()
+      for (l in 1:C) {
+        Out[l] <- integrate(HazardL, lower = 0, upper = upoint, l = l)$value
+      }
+      Out
+    }
+
+    DENOM <- exp(-sum(CHazard(s)))
+    ########
+
+    NUM1 <- function(upoint) {
+      hh_cause_main <- ((h[1, cause_main] * step(peice[1] - upoint)) +
+                          (h[2, cause_main] * step(upoint - peice[1]) * step(peice[2] - upoint)) +
+                          (h[3, cause_main] * step(upoint - peice[2]) * step(peice[3] - upoint)) +
+                          (h[4, cause_main] * step(upoint - peice[3]) * step(peice[4] - upoint)) +
+                          (h[5, cause_main] * step(upoint - peice[4]))) *
+        exp(Alpha0[k, cause_main] + Alpha1[k, cause_main] * upoint + Alpha2[k, cause_main] * (upoint^2))
+
+      Out <- c()
+      for (l in 1:C) {
+        Out[l] <- integrate(HazardL, lower = 0, upper = upoint, l = l)$value
+      }
+
+
+      AA <- exp(-sum(Out)) * hh_cause_main
+      AA
+    }
+
+    ####
+    xk1 <- wk1 <- c()
     for (j in 1:K) {
-      ### Hazard for the cause of interest
-      haz[k, j] <- ((h[1, cause_main] * step(peice[1] - xk1[j])) +
-                      (h[2, cause_main] * step(xk1[j] - peice[1]) * step(peice[2] - xk1[j])) +
-                      (h[3, cause_main] * step(xk1[j] - peice[2]) * step(peice[3] - xk1[j])) +
-                      (h[4, cause_main] * step(xk1[j] - peice[3]) * step(peice[4] - xk1[j])) +
-                      (h[5, cause_main] * step(xk1[j] - peice[4]))) *
-        exp(Alpha0[k, l] + Alpha1[k, l] * xk1[j] + Alpha2[k, l] * (xk1[j]^2))
-
-
-      ################################################
-
-      sumint <- function(v) {
-        xkn1 <- wkn1 <- c()
-        CH <- matrix(0, n2, C)
-        for (l in 1:C) {
-          for (jj in 1:K) {
-            # Scaling Gauss-Kronrod/Legendre quadrature
-            xkn1[jj] <- (xk[jj] + 1) / 2 * v
-            wkn1[jj] <- wk[jj] * v / 2
-
-
-
-            chaz[k, jj, l] <- ((h[1, l] * step(peice[1] - xkn1[jj])) +
-                                 (h[2, l] * step(xkn1[jj] - peice[1]) * step(peice[2] - xkn1[jj])) +
-                                 (h[3, l] * step(xkn1[jj] - peice[2]) * step(peice[3] - xkn1[jj])) +
-                                 (h[4, l] * step(xkn1[jj] - peice[3]) * step(peice[4] - xkn1[jj])) +
-                                 (h[5, l] * step(xkn1[jj] - peice[4]))) * exp(Alpha0[k, l] + Alpha1[k, l] * xkn1[jj] + Alpha2[k, l] * (xkn1[jj]^2))
-          }
-          CH[k, l] <- wkn1 %*% chaz[k, , l]
-        }
-        exp(-apply(CH, 1, sum))
-      }
-
-
-
-
-      NUM1[, j] <- sumint(xk1[j]) * haz[, j]
+      # Scaling Gauss-Kronrod/Legendre quadrature
+      xk1[j] <- (xk[j] + 1) / 2 * Dt + s
+      wk1[j] <- wk[j] * Dt / 2
     }
 
-    NUM[k] <- NUM1[k, ] %*% wk1
+
+    NUM00 <- c()
+    for (j in 1:K) {
+      NUM00[j] <- NUM1(xk1[j])
+    }
+    NUM <- NUM00%*%wk1
+
+
+    DP[k] <- NUM / DENOM
   }
-  #####################
-  DP <- NUM / DENOM
   #####################
   DP_last=cbind(unique(id), DP)
   colnames(DP_last)=c("id","est")

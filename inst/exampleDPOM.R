@@ -3,7 +3,7 @@ rm(list = ls())
 data(dataLong_ind)
 data(dataSurv_ind)
 set.seed(2)
-INDTRAIN <- sample(dataSurv_ind$id, 0.5 * (dim(dataSurv_ind)[1]))
+INDTRAIN <- sample(dataSurv_ind$id, 0.8 * (dim(dataSurv_ind)[1]))
 INDVALID <- dataSurv_ind$id[-INDTRAIN]
 dataLong_t <- subset(
   dataLong_ind,
@@ -45,8 +45,8 @@ model <- list(
 
 VS <- VS(formFixed, formRandom, formGroup, formSurv,
   nmark = 2, K1 = 15, K2 = 15,
-  model = model, n.chains1 = 2, n.iter1 = 20, n.burnin1 = 10,
-  n.thin1 = 1, n.chains2 = 2, n.iter2 = 20, n.burnin2 = 10,
+  model = model, n.chains1 = 2, n.iter1 = 2000, n.burnin1 = 1000,
+  n.thin1 = 1, n.chains2 = 2, n.iter2 = 2000, n.burnin2 = 1000,
   n.thin2 = 1, simplify = TRUE, Obstime = "obstime", Method = "DS",
   ncl = 2,
   DIC = TRUE, quiet = FALSE, dataLong_t, dataSurv_t
@@ -60,7 +60,7 @@ SVS(VS)
 
 D1 <- DPOM(VS,
   N_marker = 1, s = 0.1, t = 0.5, cause_main = 1, n.chains = 1,
-  n.iter = 10, n.burnin = 5,
+  n.iter = 1000, n.burnin = 500,
   n.thin = 1,
   DIC = TRUE, quiet = FALSE, dataLong_v, dataSurv_v
 )
@@ -70,7 +70,7 @@ D1 <- DPOM(VS,
 Criteria(
   s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
   CR = dataSurv_v$CR, P = D1$DP$est, cause = 1
-)
+)$Cri
 
 
 D2 <- DPOM(VS,
@@ -83,7 +83,7 @@ D2 <- DPOM(VS,
 Criteria(
   s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
   CR = dataSurv_v$CR, P = D2$DP$est, cause = 1
-)
+)$Cri
 
 
 rm(list = ls())
