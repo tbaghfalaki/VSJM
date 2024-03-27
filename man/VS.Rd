@@ -176,10 +176,12 @@ Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
          CR = dataSurv_v$CR, P = DP$DP$est, cause = 1)$Cri
 
 
-
 Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
          CR = dataSurv_v$CR, P = DP_VS$DP$est, cause = 1)$Cri
 
+
+Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+         CR = dataSurv_v$CR, P = MCDP$DP$est, cause = 1)$Cri
 ######################################################################
 rm(list=ls())
 data(dataLong_m)

@@ -29,8 +29,8 @@ SVS <- function(object) {
 
   LBFDR1 <- object$LBFDRX
   BF1 <- object$BFX
-  rownames(LBFDR1) <- rownames(BF1)  <- paste0("Cause ", 1:C)
-  colnames(LBFDR1) <- colnames(BF1)  <- colnames(XS)
+  rownames(LBFDR1) <- rownames(BF1) <- paste0("Cause ", 1:C)
+  colnames(LBFDR1) <- colnames(BF1) <- colnames(XS)
 
 
   LBFDR2 <- object$LBFDRY

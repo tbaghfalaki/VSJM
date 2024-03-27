@@ -44,9 +44,6 @@ VS2(
 \item mu.vect list of posterior mean for each parameter
 \item sd.vect list of standard error for each parameter
 \item 2.5\% list of posterior mode for each parameter
-\item 25\% list of posterior median for each parameter
-\item 50\% list of posterior median for each parameter
-\item 75\% list of posterior median for each parameter
 \item 97.5\% list of posterior median for each parameter
 \item Rhat Gelman and Rubin diagnostic for all parameter
 }
@@ -134,10 +131,12 @@ Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
          CR = dataSurv_v$CR, P = DP$DP$est, cause = 1)$Cri
 
 
-
 Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
          CR = dataSurv_v$CR, P = DP_VS$DP$est, cause = 1)$Cri
 
+
+Criteria(s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+         CR = dataSurv_v$CR, P = MCDP$DP$est, cause = 1)$Cri
 ######################################################################
 rm(list=ls())
 data(dataLong_m)

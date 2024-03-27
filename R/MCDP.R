@@ -1,7 +1,7 @@
 #'  Monte-Carlo Approximation of Dynamic prediction
 #'
 #' @description
-#' Monte-Carlo approximation ofDynamic prediction for VSJM
+#' Monte-Carlo approximation of Dynamic prediction for VSJM
 #'
 #'
 #' @details
@@ -31,9 +31,6 @@
 #' - mu.vect list of posterior mean for each parameter
 #' - sd.vect list of standard error for each parameter
 #' - 2.5% list of posterior mode for each parameter
-#' - 25% list of posterior median for each parameter
-#' - 50% list of posterior median for each parameter
-#' - 75% list of posterior median for each parameter
 #' - 97.5% list of posterior median for each parameter
 #' - Rhat Gelman and Rubin diagnostic for all parameter
 #'
@@ -44,10 +41,11 @@
 #' @md
 #' @export
 
-MCDP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cause_main, mi=10,
-                 n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
-               n.thin = max(1, floor((n.iter - n.burnin) / 1000)),
-               DIC = TRUE, quiet = FALSE, dataLong, dataSurv) {
+MCDP <- function(object, object2, Method = "LBFDR", s = s, t = t,
+                 cause_main = cause_main, mi = 10, n.chains = n.chains,
+                 n.iter = n.iter, n.burnin = floor(n.iter / 2),
+                 n.thin = max(1, floor((n.iter - n.burnin) / 1000)),
+                 DIC = TRUE, quiet = FALSE, dataLong, dataSurv) {
   Dt <- t
   KK <- 1000000
 
@@ -60,6 +58,7 @@ MCDP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cau
   C <- object$C
   nmark <- object$nmark
   mu1 <- object$mu1
+  peice <- object$peice
   #######
   LBFDR2 <- object$LBFDRY
   BF2 <- object$BFY
@@ -468,460 +467,454 @@ MCDP <- function(object, object2, Method = "LBFDR", s = s, t = t, cause_main=cau
   K <- length(xk) # K-points
   ################
 
-  peice <- stats::quantile(Time, seq(.2, 0.8, length = 4))
-  delta <- nnet::class.ind(arules::discretize(Time, method = "fixed", c(0, peice, max(Time))))
+  # peice <- stats::quantile(Time, seq(.2, 0.8, length = 4))
+  # delta <- nnet::class.ind(arules::discretize(Time, method = "fixed", c(0, peice, max(Time))))
+
+
+
 
 
   data_Long_s <- dataLong[dataLong$obstime <= s, ]
 
-  DP_tot=NULL
-  for(ttt in 1:mi){
-  X <- Z <- Xv <- Zv <- Nb <- list()
-  indB <- indtime <- list()
-  bhat_mean <- bhat_chain <- list()
-  for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
+  DP_tot <- NULL
+  for (ttt in 1:mi) {
+    X <- Z <- Xv <- Zv <- Nb <- list()
+    indB <- indtime <- list()
 
-    ###############################   ###############################  ###############################
-    betaLmc <- object$sim_step1[[j]]$sim$beta
-    gamma1mc <- object$sim_step1[[j]]$sim$alpha
-    sigma1mc <- object$sim_step1[[j]]$sim$sigma
-
-    Sample=sample(1:length(sigma1mc),mi)
-
-    betaSmc <- object$sim_step1[[j]]$sim$gamma
-    Sigmamc <- object$sim_step1[[j]]$sim$Sigma
-    hmc <- object$sim_step1[[j]]$sim$h
-    ###############################  ###############################  ###############################
-    if(is.matrix(betaLmc)==TRUE){
-      betaLmc=betaLmc[Sample,]
-    }else{
-      betaLmc=betaLmc[Sample]
-    }
-    gamma1mc=gamma1mc[Sample,]
-    sigma1mc=sigma1mc[Sample]
-    if(is.array(betaSmc)==TRUE){
-      betaSmc=betaSmc[Sample,,]
-    }else{
-      betaSmc=betaSmc[Sample,]
-    }
-
-    if(is.array(Sigmamc)==TRUE){
-      Sigmamc=Sigmamc[Sample,,]
-    }else{
-      Sigmamc=Sigmamc[Sample]
-    }
-
-    hmc=hmc[Sample,,]
-
-
-
-
-    if(is.matrix(betaLmc)==TRUE){
-      betaL=betaLmc[ttt,]
-    }else{
-      betaL=betaLmc[ttt]
-    }
-
-    gamma1 <- gamma1mc[ttt,]
-    sigma1 <- sigma1mc[ttt]
-    h <- hmc[ttt,,]
-
-
-
-    if(is.array(betaSmc)==TRUE){
-      betaS=betaSmc[ttt,,]
-    }else{
-      betaS=betaSmc[ttt,]
-    }
-
-    if(is.array(Sigmamc)==TRUE){
-      Sigma=Sigmamc[ttt,,]
-    }else{
-      Sigma=Sigmamc[ttt]
-    }
-
-
-    ###############################  ###############################  ###############################
-
-
-    if (model[[j]] == "intercept") {
-      data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
-      y <- data_long[all.vars(formFixed[[j]])][, 1]
-      #data_long <- data_long[is.na(y) == FALSE, ]
-      #y <- data_long[all.vars(formFixed[[j]])][, 1]
-      mfX <- stats::model.frame(formFixed[[j]], data = data_long , na.action = NULL)
-      X[[j]] <- stats::model.matrix(formFixed[[j]], mfX , na.action = NULL)
-      mfU <- stats::model.frame(formRandom[[j]], data = data_long , na.action = NULL)
-      id <- as.integer(data_long[all.vars(formGroup[[j]])][, 1])
-      n2 <- length(unique(id))
-      n <- length(id)
-
-      M <- table(id)
-      id2 <- rep(1:length(M), M)
-
-      Obstime <- Obstime
-      Xvtime <- cbind(id, X[[j]][, colnames(X[[j]]) %in% setdiff(colnames(X[[j]]), Obstime)])
-      Xv[[j]] <- Xvtime[!duplicated(Xvtime), -1] ### X of data without time and id replications
-
-      indB[[j]] <- 1:dim(X[[j]])[2]
-      indtime[[j]] <- indB[[j]][colnames(X[[j]]) %in% Obstime] # index of time
-    }
-    ####
-    if (model[[j]] == "linear") {
-      data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
-      y <- data_long[all.vars(formFixed[[j]])][, 1]
-      #data_long <- data_long[is.na(y) == FALSE, ]
-      #y <- data_long[all.vars(formFixed[[j]])][, 1]
-
-      mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
-      X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
-      mfU <- stats::model.frame(formRandom[[j]], data = data_long, na.action = NULL)
-      Z[[j]] <- stats::model.matrix(formRandom[[j]], mfU, na.action = NULL)
-      id <- as.integer(data_long[all.vars(formGroup[[j]])][, 1])
-      n <- length(id)
-      M <- table(id)
-      id2 <- rep(1:length(M), M)
-      n2 <- length(unique(id))
-      Nb[[j]] <- dim(Z[[j]])[2]
-      Obstime <- Obstime
-      Xvtime <- cbind(id, X[[j]][, colnames(X[[j]]) %in% setdiff(colnames(X[[j]]), Obstime)])
-      Xv[[j]] <- Xvtime[!duplicated(Xvtime), -1]
-
-      indB[[j]] <- 1:dim(X[[j]])[2]
-      indtime[[j]] <- indB[[j]][colnames(X[[j]]) %in% Obstime] # index of time
-    }
-    #############
-    if (model[[j]] == "quadratic") {
-      data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
-      y <- data_long[all.vars(formFixed[[j]])][, 1]
-      # data_long <- data_long[is.na(y) == FALSE, ]
-      # y <- data_long[all.vars(formFixed[[j]])][, 1]
-
-
-      mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
-      X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
-      mfU <- stats::model.frame(formRandom[[j]], data = data_long, na.action = NULL)
-      Z[[j]] <- stats::model.matrix(formRandom[[j]], mfU, na.action = NULL)
-
-
-      colnamesmfX <- colnames(X[[j]])
-      colnamesmfU <- colnames(Z[[j]])
-      Obstime <- Obstime
-
-      Xtime2 <- mfX[, Obstime]^2
-
-      X[[j]] <- cbind(X[[j]], Xtime2)
-      colnames(X[[j]]) <- c(colnamesmfX, "obstime2")
-      Z[[j]] <- cbind(Z[[j]], Xtime2)
-      colnames(Z[[j]]) <- c(colnamesmfU, "obstime2")
-      Obstime2 <- "obstime2"
-
-      id <- as.integer(data_long[all.vars(formGroup[[j]])][, 1])
-      M <- table(id)
-      id2 <- rep(1:length(M), M)
-
-      n <- length(id)
-      n2 <- length(unique(id))
-      Nb[[j]] <- dim(Z[[j]])[2]
-
-      Obstime2n <- c(Obstime, Obstime2)
-      Xvtime <- cbind(id, X[[j]][, colnames(X[[j]]) %in% setdiff(colnames(X[[j]]), Obstime2n)])
-      Xv[[j]] <- Xvtime[!duplicated(Xvtime), -1] ### X of data without time and id replications
-
-
-      indB[[j]] <- 1:dim(X[[j]])[2]
-      indtime[[j]] <- indB[[j]][colnames(X[[j]]) %in% Obstime2n] # index of time
-    }
-    # }
-
-
-
-
-
-
-    ########  BUGS code  ########
-    M1 <- table(id)
-    NbetasS <- dim(XS)[2]
-
-
-    if(model[[j]]=="intercept"){
-      i.jags <- function() {
-        list(
-          b = rep(0, n2)
-        )
-      }
-    }else{
-      i.jags <- function() {
-        list(
-          b = matrix(0, n2, Nb[[j]])
-        )
-      }
-    }
-    parameters <- c("b")
-
-    #### Data
-
-
-    NbetasS <- dim(XS)[2]
-
-    if (is.matrix(Xv[[j]]) == FALSE) {
-
-      if(model[[j]]=="intercept"){
-        model_fileLb_last <- textConnection(model_fileI1b)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], id = id2, indtime = indtime[[j]],
-          CR = CR, zeros = rep(0, n2),
-          s = peice, xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-
-      if(model[[j]]=="linear"){
-        model_fileLb_last <- textConnection(model_fileL1b)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], Z = Z[[j]], id = id2, indtime = indtime[[j]],
-          CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
-          s = peice,  xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-      if(model[[j]]=="quadratic"){
-        model_fileLb_last <- textConnection(model_fileQ1b)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], Z = Z[[j]], id = id2, indtime = indtime[[j]],
-          CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
-          s = peice,  xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-    }else{
-      if(model[[j]]=="intercept"){
-        model_fileLb_last <- textConnection(model_fileIb)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
-          CR = CR, zeros = rep(0, n2),
-          s = peice, xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-      if(model[[j]]=="linear"){
-        model_fileLb_last <- textConnection(model_fileLb)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
-          CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
-          s = peice, xk = xk, wk = wk, K = K, KK = KK
-        )
-
-
-
-      }
-      if(model[[j]]=="quadratic"){
-        model_fileLb_last <- textConnection(model_fileQb)
-        d.jags <- list(
-          betaL = betaL, betaS = betaS,
-          gamma1 = gamma1, sigma1 = sigma1,
-          Sigma = Sigma, h = h,
-          n = n, Time = Time, Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
-          X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]],
-          nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
-          CR = CR,  mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
-          s = peice, xk = xk, wk = wk, K = K, KK = KK
-        )
-      }
-    }
-    sim1 <- jagsUI::jags(
-      data = d.jags,
-      inits=i.jags,
-      parameters.to.save = parameters,
-      model.file = model_fileLb_last,
-      n.chains = n.chains,
-      parallel = FALSE,
-      n.adapt = FALSE,
-      n.iter = n.iter,
-      n.burnin = n.burnin,
-      n.thin = n.thin,
-      DIC = TRUE
-    )
-
-    bhat_mean[[j]] <- sim1$mean$b
-    bhat_chain[[j]] <- sim1$sims.list$b
-  }
-
-  ###################################
-  n2 <- dim(dataSurv)[1]
-  sigma <- c()
-  # mu1 <- matrix(0, n2, nmark)
-  betaL <- b <- list()
-
-  for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
-    betaL[[j]] <- object$sim_step1[[j]]$PMean$beta
-    sigma <- append(sigma, object$sim_step1[[j]]$PMean$sigma)
-    # mu1[,j]<- object$sim_step1[[j]]$PMean$linearpred
-    b[[j]] <- bhat_mean[[j]]
-  }
-  indtime <- nindtime <- list()
-  for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
-    indB <- 1:dim(X[[j]])[2]
-    if (model[[j]] != "quadratic") {
-      indtime[[j]] <- indB[colnames(X[[j]]) %in% Obstime]
-    }
-    if (model[[j]] == "quadratic"){
-      indtime[[j]] <- indB[colnames(X[[j]]) %in% c(Obstime, Obstime2)]
-    }
-    nindtime[[j]] <- c(1:dim(X[[j]])[2])[-indtime[[j]]]
-  }
-  LP1 <- LP2 <- LP3 <- matrix(0, n2, nmark)
-  for (i in 1:n2) {
+    bhat_mean <- bhat_chain <- list()
     for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
-      if (is.matrix(Xv[[j]]) == TRUE) {
-        if (model[[j]] == "intercept") {
-          LP1[i, j] <- betaL[[j]][nindtime[[j]]] %*% Xv[[j]][i, ] + b[[j]][i]
-        } else {
-          LP1[i, j] <- betaL[[j]][nindtime[[j]]] %*% Xv[[j]][i, ] + b[[j]][i, 1]
-        }
+      ###############################   ###############################  ###############################
+      betaLmc <- object$sim_step1[[j]]$sim$beta
+      gamma1mc <- object$sim_step1[[j]]$sim$alpha
+      sigma1mc <- object$sim_step1[[j]]$sim$sigma
+
+      Sample <- sample(1:length(sigma1mc), mi)
+
+      betaSmc <- object$sim_step1[[j]]$sim$gamma
+      Sigmamc <- object$sim_step1[[j]]$sim$Sigma
+      hmc <- object$sim_step1[[j]]$sim$h
+      ###############################  ###############################  ###############################
+      if (is.matrix(betaLmc) == TRUE) {
+        betaLmc <- betaLmc[Sample, ]
       } else {
-        if (model[[j]] == "intercept") {
-          LP1[i, j] <- betaL[[j]][nindtime[[j]]] + b[[j]][i]
-
-        } else {
-          LP1[i, j] <- betaL[[j]][nindtime[[j]]] + b[[j]][i, 1]
-
-        }
+        betaLmc <- betaLmc[Sample]
       }
+      gamma1mc <- gamma1mc[Sample, ]
+      sigma1mc <- sigma1mc[Sample]
+      if (is.array(betaSmc) == TRUE) {
+        betaSmc <- betaSmc[Sample, , ]
+      } else {
+        betaSmc <- betaSmc[Sample, ]
+      }
+
+      if (is.array(Sigmamc) == TRUE) {
+        Sigmamc <- Sigmamc[Sample, , ]
+      } else {
+        Sigmamc <- Sigmamc[Sample]
+      }
+
+      hmc <- hmc[Sample, , ]
+
+
+
+
+      if (is.matrix(betaLmc) == TRUE) {
+        betaL <- betaLmc[ttt, ]
+      } else {
+        betaL <- betaLmc[ttt]
+      }
+
+      gamma1 <- gamma1mc[ttt, ]
+      sigma1 <- sigma1mc[ttt]
+      h <- hmc[ttt, , ]
+
+
+
+      if (is.array(betaSmc) == TRUE) {
+        betaS <- betaSmc[ttt, , ]
+      } else {
+        betaS <- betaSmc[ttt, ]
+      }
+
+      if (is.array(Sigmamc) == TRUE) {
+        Sigma <- Sigmamc[ttt, , ]
+      } else {
+        Sigma <- Sigmamc[ttt]
+      }
+
+
+
+
+
+
+
       if (model[[j]] == "intercept") {
-        LP2[i, j] <- betaL[[j]][indtime[[j]][1]]
-      } else {
-        LP2[i, j] <- betaL[[j]][indtime[[j]][1]] + b[[j]][i, 2]
+        data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
+        y <- data_long[all.vars(formFixed[[j]])][, 1]
+        # data_long <- data_long[is.na(y) == FALSE, ]
+        # y <- data_long[all.vars(formFixed[[j]])][, 1]
+
+        mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
+        X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
+        mfU <- stats::model.frame(formRandom[[j]], data = data_long, na.action = NULL)
+        id <- as.integer(data_long[all.vars(formGroup[[j]])][, 1])
+        n2 <- length(unique(id))
+        n <- length(id)
+
+        M <- table(id)
+        id2 <- rep(1:length(M), M)
+
+        Obstime <- Obstime
+        Xvtime <- cbind(id, X[[j]][, colnames(X[[j]]) %in% setdiff(colnames(X[[j]]), Obstime)])
+        Xv[[j]] <- Xvtime[!duplicated(Xvtime), -1] ### X of data without time and id replications
+
+        indB[[j]] <- 1:dim(X[[j]])[2]
+        indtime[[j]] <- indB[[j]][colnames(X[[j]]) %in% Obstime] # index of time
       }
-      LP3[i, j] <- 0
+      ####
+      if (model[[j]] == "linear") {
+        data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
+        y <- data_long[all.vars(formFixed[[j]])][, 1]
+        # data_long <- data_long[is.na(y) == FALSE, ]
+        # y <- data_long[all.vars(formFixed[[j]])][, 1]
 
+        mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
+        X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
+        mfU <- stats::model.frame(formRandom[[j]], data = data_long, na.action = NULL)
+        Z[[j]] <- stats::model.matrix(formRandom[[j]], mfU, na.action = NULL)
+        id <- as.integer(data_long[all.vars(formGroup[[j]])][, 1])
+        n <- length(id)
+        M <- table(id)
+        id2 <- rep(1:length(M), M)
+        n2 <- length(unique(id))
+        Nb[[j]] <- dim(Z[[j]])[2]
+        Obstime <- Obstime
+        Xvtime <- cbind(id, X[[j]][, colnames(X[[j]]) %in% setdiff(colnames(X[[j]]), Obstime)])
+        Xv[[j]] <- Xvtime[!duplicated(Xvtime), -1]
 
-      if (model[[j]] == "quadratic") (LP3[i, j] <- betaL[[j]][indtime[[j]][2]] + b[[j]][i, 3])
-    }
-  }
-
-  ########################### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-  betaS <- object2$Estimation$Survival_model$gamma$Est
-  alpha <- object2$Estimation$Survival_model$alpha$Est
-  h <- object2$Estimation$Survival_model$lambda$Est
-  ########################### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-  xk11 <- wk11 <- matrix(0, n, K)
-  for (k in 1:n) {
-    for (j in 1:K) {
-      xk11[k, j] <- (xk[j] + 1) / 2 * s
-      wk11[k, j] <- wk[j] * s / 2
-    }
-  }
-
-  step <- function(x) {
-    z <- 0
-    if (x >= 0) (z <- 1)
-    z
-  }
-
-  Alpha0 <- Alpha1 <- Alpha2 <-  CH <- matrix(0, n2, C)
-  chaz <- array(0, c(n2, K, C))
-  for (k in 1:n2) {
-    for (l in 1:C) {
-      Alpha0[k, l] <- betaS[l, ] %*% XS[k, ] + alpha[l, ] %*% LP1[k, ]
-      Alpha1[k, l] <- alpha[l, ] %*% LP2[k, ]
-      Alpha2[k, l] <- alpha[l, ] %*% LP3[k, ]
-
-      for (j in 1:K) {
-        chaz[k, j, l] <- ((h[1, l] * step(peice[1] - xk11[k, j])) +
-                            (h[2, l] * step(xk11[k, j] - peice[1]) * step(peice[2] - xk11[k, j])) +
-                            (h[3, l] * step(xk11[k, j] - peice[2]) * step(peice[3] - xk11[k, j])) +
-                            (h[4, l] * step(xk11[k, j] - peice[3]) * step(peice[4] - xk11[k, j])) +
-                            (h[5, l] * step(xk11[k, j] - peice[4]))) * exp(Alpha0[k, l] + Alpha1[k, l] * xk11[k, j] + Alpha2[k, l] * (xk11[k, j]^2))
+        indB[[j]] <- 1:dim(X[[j]])[2]
+        indtime[[j]] <- indB[[j]][colnames(X[[j]]) %in% Obstime] # index of time
       }
-      CH[k, l] <- wk11[k, ] %*% chaz[k, , l]
-    }
-  }
-  DENOM <- exp(-apply(CH, 1, sum))
-  ########
-  haz <- matrix(0, n2, K)
-  NUM <- c()
-  NUM1 <- matrix(0, n2, K)
-  xk1 <- wk1 <- c()
-
-  for (j in 1:K) {
-    # Scaling Gauss-Kronrod/Legendre quadrature
-    xk1[j] <- (xk[j] + 1) / 2 * Dt + s
-    wk1[j] <- wk[j] * Dt / 2
-  }
-  chaz <- array(0, c(n2, K, C))
-  for (k in 1:n2) {
-    for (j in 1:K) {
-      ### Hazard for the cause of interest
-      haz[k, j] <- ((h[1, cause_main] * step(peice[1] - xk1[j])) +
-                      (h[2, cause_main] * step(xk1[j] - peice[1]) * step(peice[2] - xk1[j])) +
-                      (h[3, cause_main] * step(xk1[j] - peice[2]) * step(peice[3] - xk1[j])) +
-                      (h[4, cause_main] * step(xk1[j] - peice[3]) * step(peice[4] - xk1[j])) +
-                      (h[5, cause_main] * step(xk1[j] - peice[4]))) *
-        exp(Alpha0[k, l] + Alpha1[k, l] * xk1[j] + Alpha2[k, l] * (xk1[j]^2))
+      #############
+      if (model[[j]] == "quadratic") {
+        data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
+        y <- data_long[all.vars(formFixed[[j]])][, 1]
+        # data_long <- data_long[is.na(y) == FALSE, ]
+        # y <- data_long[all.vars(formFixed[[j]])][, 1]
 
 
-      ################################################
-
-      sumint <- function(v) {
-        xkn1 <- wkn1 <- c()
-        CH <- matrix(0, n2, C)
-        for (l in 1:C) {
-          for (jj in 1:K) {
-            # Scaling Gauss-Kronrod/Legendre quadrature
-            xkn1[jj] <- (xk[jj] + 1) / 2 * v
-            wkn1[jj] <- wk[jj] * v / 2
+        mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
+        X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
+        mfU <- stats::model.frame(formRandom[[j]], data = data_long, na.action = NULL)
+        Z[[j]] <- stats::model.matrix(formRandom[[j]], mfU, na.action = NULL)
 
 
+        colnamesmfX <- colnames(X[[j]])
+        colnamesmfU <- colnames(Z[[j]])
+        Obstime <- Obstime
 
-            chaz[k, jj, l] <- ((h[1, l] * step(peice[1] - xkn1[jj])) +
-                                 (h[2, l] * step(xkn1[jj] - peice[1]) * step(peice[2] - xkn1[jj])) +
-                                 (h[3, l] * step(xkn1[jj] - peice[2]) * step(peice[3] - xkn1[jj])) +
-                                 (h[4, l] * step(xkn1[jj] - peice[3]) * step(peice[4] - xkn1[jj])) +
-                                 (h[5, l] * step(xkn1[jj] - peice[4]))) * exp(Alpha0[k, l] + Alpha1[k, l] * xkn1[jj] + Alpha2[k, l] * (xkn1[jj]^2))
-          }
-          CH[k, l] <- wkn1 %*% chaz[k, , l]
+        Xtime2 <- mfX[, Obstime]^2
+
+        X[[j]] <- cbind(X[[j]], Xtime2)
+        colnames(X[[j]]) <- c(colnamesmfX, "obstime2")
+        Z[[j]] <- cbind(Z[[j]], Xtime2)
+        colnames(Z[[j]]) <- c(colnamesmfU, "obstime2")
+        Obstime2 <- "obstime2"
+
+        id <- as.integer(data_long[all.vars(formGroup[[j]])][, 1])
+        M <- table(id)
+        id2 <- rep(1:length(M), M)
+
+        n <- length(id)
+        n2 <- length(unique(id))
+        Nb[[j]] <- dim(Z[[j]])[2]
+
+        Obstime2n <- c(Obstime, Obstime2)
+        Xvtime <- cbind(id, X[[j]][, colnames(X[[j]]) %in% setdiff(colnames(X[[j]]), Obstime2n)])
+        Xv[[j]] <- Xvtime[!duplicated(Xvtime), -1] ### X of data without time and id replications
+
+
+        indB[[j]] <- 1:dim(X[[j]])[2]
+        indtime[[j]] <- indB[[j]][colnames(X[[j]]) %in% Obstime2n] # index of time
+      }
+      # }
+
+
+
+
+
+
+      ########  BUGS code  ########
+      M1 <- table(id)
+      NbetasS <- dim(XS)[2]
+
+
+      if (model[[j]] == "intercept") {
+        i.jags <- function() {
+          list(
+            b = rep(0, n2)
+          )
         }
-        exp(-apply(CH, 1, sum))
+      } else {
+        i.jags <- function() {
+          list(
+            b = matrix(0, n2, Nb[[j]])
+          )
+        }
+      }
+      parameters <- c("b")
+      ###############################
+      betaL <- object$sim_step1[[j]]$PMean$beta
+      betaS <- object$sim_step1[[j]]$PMean$gamma
+      gamma1 <- object$sim_step1[[j]]$PMean$alpha
+      sigma1 <- object$sim_step1[[j]]$PMean$sigma
+      Sigma <- object$sim_step1[[j]]$PMean$Sigma
+      h <- object$sim_step1[[j]]$PMean$h
+      #### Data
+
+
+      NbetasS <- dim(XS)[2]
+
+      if (is.matrix(Xv[[j]]) == FALSE) {
+        if (model[[j]] == "intercept") {
+          model_fileLb_last <- textConnection(model_fileI1b)
+          d.jags <- list(
+            betaL = betaL, betaS = betaS,
+            gamma1 = gamma1, sigma1 = sigma1,
+            Sigma = Sigma, h = h,
+            n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+            X = X[[j]], id = id2, indtime = indtime[[j]],
+            CR = CR, zeros = rep(0, n2),
+            s = peice, xk = xk, wk = wk, K = K, KK = KK
+          )
+        }
+
+        if (model[[j]] == "linear") {
+          model_fileLb_last <- textConnection(model_fileL1b)
+          d.jags <- list(
+            betaL = betaL, betaS = betaS,
+            gamma1 = gamma1, sigma1 = sigma1,
+            Sigma = Sigma, h = h,
+            n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+            X = X[[j]], Z = Z[[j]], id = id2, indtime = indtime[[j]],
+            CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
+            s = peice, xk = xk, wk = wk, K = K, KK = KK
+          )
+        }
+        if (model[[j]] == "quadratic") {
+          model_fileLb_last <- textConnection(model_fileQ1b)
+          d.jags <- list(
+            betaL = betaL, betaS = betaS,
+            gamma1 = gamma1, sigma1 = sigma1,
+            Sigma = Sigma, h = h,
+            n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+            X = X[[j]], Z = Z[[j]], id = id2, indtime = indtime[[j]],
+            CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
+            s = peice, xk = xk, wk = wk, K = K, KK = KK
+          )
+        }
+      } else {
+        if (model[[j]] == "intercept") {
+          model_fileLb_last <- textConnection(model_fileIb)
+          d.jags <- list(
+            betaL = betaL, betaS = betaS,
+            gamma1 = gamma1, sigma1 = sigma1,
+            Sigma = Sigma, h = h,
+            n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+            X = X[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
+            CR = CR, zeros = rep(0, n2),
+            s = peice, xk = xk, wk = wk, K = K, KK = KK
+          )
+        }
+        if (model[[j]] == "linear") {
+          model_fileLb_last <- textConnection(model_fileLb)
+          d.jags <- list(
+            betaL = betaL, betaS = betaS,
+            gamma1 = gamma1, sigma1 = sigma1,
+            Sigma = Sigma, h = h,
+            n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+            X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
+            CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
+            s = peice, xk = xk, wk = wk, K = K, KK = KK
+          )
+        }
+        if (model[[j]] == "quadratic") {
+          model_fileLb_last <- textConnection(model_fileQb)
+          d.jags <- list(
+            betaL = betaL, betaS = betaS,
+            gamma1 = gamma1, sigma1 = sigma1,
+            Sigma = Sigma, h = h,
+            n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+            X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]],
+            nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
+            CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
+            s = peice, xk = xk, wk = wk, K = K, KK = KK
+          )
+        }
+      }
+      sim1 <- jagsUI::jags(
+        data = d.jags,
+        inits = i.jags,
+        parameters.to.save = parameters,
+        model.file = model_fileLb_last,
+        n.chains = n.chains,
+        parallel = FALSE,
+        n.adapt = FALSE,
+        n.iter = n.iter,
+        n.burnin = n.burnin,
+        n.thin = n.thin,
+        DIC = TRUE
+      )
+
+      bhat_mean[[j]] <- sim1$mean$b
+      bhat_chain[[j]] <- sim1$sims.list$b
+    }
+
+    ################################### ???
+    n2 <- dim(dataSurv)[1]
+    sigma <- c()
+    betaL <- b <- list()
+    for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
+      betaL[[j]] <- object$sim_step1[[j]]$PMean$beta
+      sigma <- append(sigma, object$sim_step1[[j]]$PMean$sigma)
+      b[[j]] <- bhat_mean[[j]]
+    }
+    indtime <- nindtime <- list()
+    for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
+      indB <- 1:dim(X[[j]])[2]
+      if (model[[j]] == "quadratic") {
+        indtime[[j]] <- indB[colnames(X[[j]]) %in% c(Obstime, Obstime2)]
+      } else {
+        indtime[[j]] <- indB[colnames(X[[j]]) %in% Obstime]
+      }
+      nindtime[[j]] <- c(1:dim(X[[j]])[2])[-indtime[[j]]]
+    }
+    LP1 <- LP2 <- LP3 <- matrix(0, n2, nmark)
+    for (i in 1:n2) {
+      for (j in c(1:nmark)[apply(I_alpha, 2, max) > 0]) {
+        if (is.matrix(Xv[[j]]) == TRUE) {
+          if (model[[j]] == "intercept") {
+            LP1[i, j] <- betaL[[j]][nindtime[[j]]] %*% Xv[[j]][i, ] + b[[j]][i]
+          } else {
+            LP1[i, j] <- betaL[[j]][nindtime[[j]]] %*% Xv[[j]][i, ] + b[[j]][i, 1]
+          }
+        } else {
+          if (model[[j]] == "intercept") {
+            LP1[i, j] <- betaL[[j]][nindtime[[j]]] + b[[j]][i]
+          } else {
+            LP1[i, j] <- betaL[[j]][nindtime[[j]]] + b[[j]][i, 1]
+          }
+        }
+        if (model[[j]] == "intercept") {
+          LP2[i, j] <- betaL[[j]][indtime[[j]][1]]
+        } else {
+          LP2[i, j] <- betaL[[j]][indtime[[j]][1]] + b[[j]][i, 2]
+        }
+        LP3[i, j] <- 0
+
+
+        if (model[[j]] == "quadratic") (LP3[i, j] <- betaL[[j]][indtime[[j]][2]] + b[[j]][i, 3])
+      }
+    }
+
+    ########################### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    betaS <- object2$Estimation$Survival_model$gamma$Est
+    alpha <- object2$Estimation$Survival_model$alpha$Est
+    h <- object2$Estimation$Survival_model$lambda$Est
+    ########################### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+
+    step <- function(x) {
+      z <- rep(0, length(x))
+      for (k in 1:length(x)) {
+        if (x[k] >= 0) (z[k] <- 1)
+      }
+      z
+    }
+
+    Alpha0 <- Alpha1 <- Alpha2 <- matrix(0, n2, C)
+    DP <- c()
+
+    for (k in 1:n2) {
+      for (l in 1:C) {
+        Alpha0[k, l] <- betaS[l, ] %*% XS[k, ] + alpha[l, ] %*% LP1[k, ]
+        Alpha1[k, l] <- alpha[l, ] %*% LP2[k, ]
+        Alpha2[k, l] <- alpha[l, ] %*% LP3[k, ]
       }
 
 
 
+      HazardL <- function(tpoint, l) {
+        hh <- ((h[1, l] * step(peice[1] - tpoint)) +
+          (h[2, l] * step(tpoint - peice[1]) * step(peice[2] - tpoint)) +
+          (h[3, l] * step(tpoint - peice[2]) * step(peice[3] - tpoint)) +
+          (h[4, l] * step(tpoint - peice[3]) * step(peice[4] - tpoint)) +
+          (h[5, l] * step(tpoint - peice[4]))) *
+          exp(Alpha0[k, l] + Alpha1[k, l] * tpoint + Alpha2[k, l] * (tpoint^2))
+        hh
+      }
 
-      NUM1[, j] <- sumint(xk1[j]) * haz[, j]
+
+
+      CHazard <- function(upoint) {
+        Out <- c()
+        for (l in 1:C) {
+          Out[l] <- integrate(HazardL, lower = 0, upper = upoint, l = l)$value
+        }
+        Out
+      }
+
+      DENOM <- exp(-sum(CHazard(s)))
+      ########
+
+      NUM1 <- function(upoint) {
+        hh_cause_main <- ((h[1, cause_main] * step(peice[1] - upoint)) +
+          (h[2, cause_main] * step(upoint - peice[1]) * step(peice[2] - upoint)) +
+          (h[3, cause_main] * step(upoint - peice[2]) * step(peice[3] - upoint)) +
+          (h[4, cause_main] * step(upoint - peice[3]) * step(peice[4] - upoint)) +
+          (h[5, cause_main] * step(upoint - peice[4]))) *
+          exp(Alpha0[k, cause_main] + Alpha1[k, cause_main] * upoint + Alpha2[k, cause_main] * (upoint^2))
+
+        Out <- c()
+        for (l in 1:C) {
+          Out[l] <- integrate(HazardL, lower = 0, upper = upoint, l = l)$value
+        }
+
+
+        AA <- exp(-sum(Out)) * hh_cause_main
+        AA
+      }
+
+      ####
+      xk1 <- wk1 <- c()
+      for (j in 1:K) {
+        # Scaling Gauss-Kronrod/Legendre quadrature
+        xk1[j] <- (xk[j] + 1) / 2 * Dt + s
+        wk1[j] <- wk[j] * Dt / 2
+      }
+
+
+      NUM00 <- c()
+      for (j in 1:K) {
+        NUM00[j] <- NUM1(xk1[j])
+      }
+      NUM <- NUM00 %*% wk1
+
+      DENOM[DENOM == 0] <- 0.00000001
+      DP[k] <- NUM / (DENOM)
     }
 
-    NUM[k] <- NUM1[k, ] %*% wk1
+    DP_tot <- rbind(DP_tot, DP)
   }
   #####################
-  DP <- NUM / DENOM
-  #####################
-  DP_tot=rbind(DP_tot,DP)
-  }
 
-  DP=apply(DP_tot,2,mean)
-  DPQ=t(apply(DP_tot,2,quantile,c(0.025,0.975)))
 
-  DP_last=cbind(unique(id), DP,DPQ)
-  colnames(DP_last)=c("id","est","lower","upper")
-  DP_last=data.frame(DP_last)
-  list(DP =DP_last, s = s, t = Dt)
+
+  DP <- apply(DP_tot, 2, mean)
+  DPQ <- t(apply(DP_tot, 2, quantile, c(0.025, 0.975)))
+
+  DP_last <- cbind(unique(id), DP, DPQ)
+  colnames(DP_last) <- c("id", "est", "lower", "upper")
+  DP_last <- data.frame(DP_last)
+  list(DP = DP_last, s = s, t = Dt)
 }
-

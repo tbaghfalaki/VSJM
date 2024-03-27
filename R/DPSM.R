@@ -30,9 +30,6 @@
 #' - mu.vect list of posterior mean for each parameter
 #' - sd.vect list of standard error for each parameter
 #' - 2.5% list of posterior mode for each parameter
-#' - 25% list of posterior median for each parameter
-#' - 50% list of posterior median for each parameter
-#' - 75% list of posterior median for each parameter
 #' - 97.5% list of posterior median for each parameter
 #' - Rhat Gelman and Rubin diagnostic for all parameter
 #'
@@ -43,7 +40,7 @@
 #' @md
 #' @export
 
-DPSM <- function(object, object2, N_markers = c(1,2), s = s, t = t, cause_main = cause_main, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
+DPSM <- function(object, object2, N_markers = c(1, 2), s = s, t = t, cause_main = cause_main, n.chains = n.chains, n.iter = n.iter, n.burnin = floor(n.iter / 2),
                  n.thin = max(1, floor((n.iter - n.burnin) / 1000)),
                  DIC = TRUE, quiet = FALSE, dataLong, dataSurv) {
   Dt <- t
@@ -58,7 +55,7 @@ DPSM <- function(object, object2, N_markers = c(1,2), s = s, t = t, cause_main =
   C <- object$C
   mu1 <- object$mu1[, N_markers]
   peice <- object$peice
-  nmark=length(N_markers)
+  nmark <- length(N_markers)
   ########### univariate_jm_random_effect_estimation
 
   model_fileI1b <- "model{
@@ -454,8 +451,8 @@ DPSM <- function(object, object2, N_markers = c(1,2), s = s, t = t, cause_main =
     if (model[[j]] == "intercept") {
       data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
       y <- data_long[all.vars(formFixed[[j]])][, 1]
-      #data_long <- data_long[is.na(y) == FALSE, ]
-      #y <- data_long[all.vars(formFixed[[j]])][, 1]
+      # data_long <- data_long[is.na(y) == FALSE, ]
+      # y <- data_long[all.vars(formFixed[[j]])][, 1]
 
       mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
       X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
@@ -478,8 +475,8 @@ DPSM <- function(object, object2, N_markers = c(1,2), s = s, t = t, cause_main =
     if (model[[j]] == "linear") {
       data_long <- data_Long_s[unique(c(all.vars(formGroup[[j]]), all.vars(formFixed[[j]]), all.vars(formRandom[[j]])))]
       y <- data_long[all.vars(formFixed[[j]])][, 1]
-      #data_long <- data_long[is.na(y) == FALSE, ]
-      #y <- data_long[all.vars(formFixed[[j]])][, 1]
+      # data_long <- data_long[is.na(y) == FALSE, ]
+      # y <- data_long[all.vars(formFixed[[j]])][, 1]
 
       mfX <- stats::model.frame(formFixed[[j]], data = data_long, na.action = NULL)
       X[[j]] <- stats::model.matrix(formFixed[[j]], mfX, na.action = NULL)
@@ -552,13 +549,13 @@ DPSM <- function(object, object2, N_markers = c(1,2), s = s, t = t, cause_main =
     NbetasS <- dim(XS)[2]
 
 
-    if(model[[j]]=="intercept"){
+    if (model[[j]] == "intercept") {
       i.jags <- function() {
         list(
           b = rep(0, n2)
         )
       }
-    }else{
+    } else {
       i.jags <- function() {
         list(
           b = matrix(0, n2, Nb[[j]])
@@ -582,89 +579,85 @@ DPSM <- function(object, object2, N_markers = c(1,2), s = s, t = t, cause_main =
     NbetasS <- dim(XS)[2]
 
     if (is.matrix(Xv[[j]]) == FALSE) {
-
-      if(model[[j]]=="intercept"){
+      if (model[[j]] == "intercept") {
         model_fileLb_last <- textConnection(model_fileI1b)
         d.jags <- list(
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], id = id2, indtime = indtime[[j]],
           CR = CR, zeros = rep(0, n2),
           s = peice, xk = xk, wk = wk, K = K, KK = KK
         )
       }
 
-      if(model[[j]]=="linear"){
+      if (model[[j]] == "linear") {
         model_fileLb_last <- textConnection(model_fileL1b)
         d.jags <- list(
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], Z = Z[[j]], id = id2, indtime = indtime[[j]],
           CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
-          s = peice,  xk = xk, wk = wk, K = K, KK = KK
+          s = peice, xk = xk, wk = wk, K = K, KK = KK
         )
       }
-      if(model[[j]]=="quadratic"){
+      if (model[[j]] == "quadratic") {
         model_fileLb_last <- textConnection(model_fileQ1b)
         d.jags <- list(
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], Z = Z[[j]], id = id2, indtime = indtime[[j]],
           CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
-          s = peice,  xk = xk, wk = wk, K = K, KK = KK
+          s = peice, xk = xk, wk = wk, K = K, KK = KK
         )
       }
-    }else{
-      if(model[[j]]=="intercept"){
+    } else {
+      if (model[[j]] == "intercept") {
         model_fileLb_last <- textConnection(model_fileIb)
         d.jags <- list(
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
           CR = CR, zeros = rep(0, n2),
           s = peice, xk = xk, wk = wk, K = K, KK = KK
         )
       }
-      if(model[[j]]=="linear"){
+      if (model[[j]] == "linear") {
         model_fileLb_last <- textConnection(model_fileLb)
         d.jags <- list(
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]], nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
-          CR = CR,  mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
+          CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
           s = peice, xk = xk, wk = wk, K = K, KK = KK
         )
-
-
-
       }
-      if(model[[j]]=="quadratic"){
+      if (model[[j]] == "quadratic") {
         model_fileLb_last <- textConnection(model_fileQb)
         d.jags <- list(
           betaL = betaL, betaS = betaS,
           gamma1 = gamma1, sigma1 = sigma1,
           Sigma = Sigma, h = h,
-          n = n, Time = rep(s,n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
+          n = n, Time = rep(s, n2), Y1 = y, n2 = n2, XS = XS, NbetasS = dim(XS)[2], C = C,
           X = X[[j]], Z = Z[[j]], id = id2, Xv = Xv[[j]], indtime = indtime[[j]],
           nindtime = c(1:dim(X[[j]])[2])[-indtime[[j]]],
-          CR = CR,  mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
+          CR = CR, mub = rep(0, Nb[[j]]), Nb = Nb[[j]], zeros = rep(0, n2),
           s = peice, xk = xk, wk = wk, K = K, KK = KK
         )
       }
     }
     sim1 <- jagsUI::jags(
       data = d.jags,
-      inits=i.jags,
+      inits = i.jags,
       parameters.to.save = parameters,
       model.file = model_fileLb_last,
       n.chains = n.chains,
@@ -697,7 +690,6 @@ DPSM <- function(object, object2, N_markers = c(1,2), s = s, t = t, cause_main =
     indB <- 1:dim(X[[j]])[2]
     if (model[[j]] == "quadratic") {
       indtime[[j]] <- indB[colnames(X[[j]]) %in% c(Obstime, Obstime2)]
-
     } else {
       indtime[[j]] <- indB[colnames(X[[j]]) %in% Obstime]
     }
@@ -715,10 +707,8 @@ DPSM <- function(object, object2, N_markers = c(1,2), s = s, t = t, cause_main =
       } else {
         if (model[[j]] == "intercept") {
           LP1[i, j] <- betaL[[j]][nindtime[[j]]] + b[[j]][i]
-
         } else {
           LP1[i, j] <- betaL[[j]][nindtime[[j]]] + b[[j]][i, 1]
-
         }
       }
       if (model[[j]] == "intercept") {
@@ -750,13 +740,10 @@ DPSM <- function(object, object2, N_markers = c(1,2), s = s, t = t, cause_main =
   DP <- c()
 
   for (k in 1:n2) {
-
-
-
     for (l in 1:C) {
-      Alpha0[k, l] <- betaS[l, ] %*% XS[k, ] + alpha[l,] %*% LP1[k,]
-      Alpha1[k, l] <- alpha[l,] %*% LP2[k,]
-      Alpha2[k, l] <- alpha[l,]  %*%  LP3[k,]
+      Alpha0[k, l] <- betaS[l, ] %*% XS[k, ] + alpha[l, ] %*% LP1[k, ]
+      Alpha1[k, l] <- alpha[l, ] %*% LP2[k, ]
+      Alpha2[k, l] <- alpha[l, ] %*% LP3[k, ]
     }
 
 
@@ -815,9 +802,9 @@ DPSM <- function(object, object2, N_markers = c(1,2), s = s, t = t, cause_main =
     for (j in 1:K) {
       NUM00[j] <- NUM1(xk1[j])
     }
-    NUM <- NUM00%*%wk1
+    NUM <- NUM00 %*% wk1
 
-    DENOM[DENOM==0]=0.00000001
+    DENOM[DENOM == 0] <- 0.00000001
 
     DP[k] <- NUM / DENOM
   }
