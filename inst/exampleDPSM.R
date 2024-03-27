@@ -59,16 +59,16 @@ SVS(VS)
 
 
 Step2 <- VS2(VS,
-             Method = "LBFDR", n.chains = 2, n.iter = 1000, n.burnin = 500,
-             n.thin = 1, dataLong = dataLong_t, dataSurv = dataSurv_t
+  Method = "LBFDR", n.chains = 2, n.iter = 1000, n.burnin = 500,
+  n.thin = 1, dataLong = dataLong_t, dataSurv = dataSurv_t
 )
 
 
 
 
 
-D1 <- DPSM(VS,Step2,
-  N_marker = c(1,2), s = 0.1, t = 0.5, cause_main = 1, n.chains = 1,
+D1 <- DPSM(VS, Step2,
+  N_marker = c(1, 2), s = 0.1, t = 0.5, cause_main = 1, n.chains = 1,
   n.iter = 2000, n.burnin = 1000,
   n.thin = 1,
   DIC = TRUE, quiet = FALSE, dataLong_v, dataSurv_v

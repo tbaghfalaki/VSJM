@@ -12,4 +12,4 @@ To acquire the latest development version of VSJM, you may utilize the following
 This will seamlessly fetch and install the most up-to-date version of VSJM for your use.
 
 ### Reference 
-Baghfalaki, T., Hashemi, R. & Jacqmin-Gadda, H. (2024). A Two-stage Approach for Variable Selection in Joint Modeling of Multiple Longitudinal Markers and Time-to-Event Data. 
+Baghfalaki, T., Hashemi, R. & Jacqmin-Gadda, H. (2024). A Two-stage Approach for Variable Selection in Joint Modeling of Multiple Longitudinal Markers and Competing Risk Outcomes. 
