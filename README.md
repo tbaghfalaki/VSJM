@@ -21,9 +21,9 @@ Note: Before installing this package, please install the *parallelsugar* package
 
 ### Example Usage
 
- > Examples from the VSJM can be found in the following:
+Examples from the VSJM can be found in the following:
 
-- Variable selection: This analysis is presented [here](/Exam1.md)
+- Variable selection and dynamic prediction: This analysis is presented [here](/Exam1.md)
 
 ### Reference 
 Baghfalaki, T., Hashemi, R. & Jacqmin-Gadda, H. (2024). A Two-stage Approach for Variable Selection in Joint Modeling of Multiple Longitudinal Markers and Competing Risk Outcomes. 
