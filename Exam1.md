@@ -195,11 +195,19 @@ $alpha$I_BF
 Cause 1       1       1       0       0       1       0       1       0       0        0
 Cause 2       0       1       1       0       0       0       0       0       0        0
 ```
-At this stage variable selection has been done. The next stage is variable selection. 
+At this stage variable selection has been done. The next stage is risk prediction. 
+
+Dynamic prediction
+---------------
+To reduce estimation biases resulting from variable selection, we propose incorporating an additional stage to calculate dynamic predictions. After variable selection using CS or DS prior, we recommend re-estimating the proportional hazard model by substituting CS or Ds with non-informative normal priors for the association parameters of the selected markers and the regression coefficients of the selected covariates. This has been done by considering *VS2* function in the package. The main arguments in this function are:
 
 
 
 
-
-
+```
+Step2 <- VS2(VS,
+  Method = "LBFDR", n.chains = 2, n.iter = 2000, n.burnin = 1000,
+  n.thin = 1, dataLong = dataLong_t, dataSurv = dataSurv_t
+)
+```
 
