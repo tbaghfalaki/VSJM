@@ -38,9 +38,6 @@
 #' - MCMC chains for the unknown parameters
 #' - mu.vect list of posterior mean for each parameter
 #' - sd.vect list of standard error for each parameter
-#' - 2.5% list of posterior mode for each parameter
-#' - 25% list of posterior median for each parameter
-#' - 50% list of posterior median for each parameter
 #' - 75% list of posterior median for each parameter
 #' - 97.5% list of posterior median for each parameter
 #' - Rhat Gelman and Rubin diagnostic for all parameter
