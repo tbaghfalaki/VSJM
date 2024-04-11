@@ -125,7 +125,9 @@ $\sigma^2_{\gamma _{jk}}$|
 $a_{\gamma_{jk}} $
 
 
-$\sigma_{\gamma _{jk}}^2 | {a_{\sigma_{\gamma _{jk}}^2},{\sigma_{\gamma _{jk}}^2} \sim {{I}\Gamma}({a_{\sigma_{\gamma _{jk}}^2},b_{\sigma_{\gamma _{jk}}^2})$
+${a_{\sigma_{\gamma _{jk}}^2},$
+
+${\sigma_{\gamma _{jk}}^2}$ $\sim {{I}\Gamma}({a_{\sigma_{\gamma _{jk}}^2},b_{\sigma_{\gamma _{jk}}^2})$
 
 
 
