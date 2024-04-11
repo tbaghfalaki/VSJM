@@ -148,5 +148,50 @@ For summarizing the outputs of this function, we utilize the following function:
 SVS <- SVS(VS)
 ```
 
+The output of the function is as follows:
 
-If we consider n.chains1 or n.chains2 > 1, the values of the Gelman-Rubin criteria are also provided, which helps in checking the convergence of the MCMC.
+```
+> SVS
+$gamma
+$gamma$LBFDR
+           w1    x1
+Cause 1 0.000 0.996
+Cause 2 0.453 0.967
+
+$gamma$BF
+              w1          x1
+Cause 1      Inf 0.004016064
+Cause 2 1.207506 0.034126163
+
+$gamma$I_LBFDR
+        w1 x1
+Cause 1  1  0
+Cause 2  0  0
+
+$gamma$I_BF
+        w1 x1
+Cause 1  1  0
+Cause 2  1  0
+
+
+$alpha
+$alpha$LBFDR
+        Marker1 Marker2 Marker3 Marker4 Marker5 Marker6 Marker7 Marker8 Marker9 Marker10
+Cause 1       0       0       1       1   0.143       1  0.1365       1       1        1
+Cause 2       1       0       0       1   1.000       1  1.0000       1       1        1
+
+$alpha$BF
+        Marker1 Marker2 Marker3 Marker4  Marker5 Marker6  Marker7 Marker8 Marker9 Marker10
+Cause 1     Inf     Inf       0       0 5.993007       0 6.326007       0       0        0
+Cause 2       0     Inf     Inf       0 0.000000       0 0.000000       0       0        0
+
+$alpha$I_LBFDR
+        Marker1 Marker2 Marker3 Marker4 Marker5 Marker6 Marker7 Marker8 Marker9 Marker10
+Cause 1       1       1       0       0       0       0       0       0       0        0
+Cause 2       0       1       1       0       0       0       0       0       0        0
+
+$alpha$I_BF
+        Marker1 Marker2 Marker3 Marker4 Marker5 Marker6 Marker7 Marker8 Marker9 Marker10
+Cause 1       1       1       0       0       1       0       1       0       0        0
+Cause 2       0       1       1       0       0       0       0       0       0        0
+```
