@@ -131,7 +131,6 @@ It is important to note that if you consider "simplify=TRUE", instead of a hiera
 
 As an example, consider the following command, where this implementation has been performed on training data using the "DS" method:
 
-
 ```
 VS <- VS(formFixed, formRandom, formGroup, formSurv,
   nmark = 10, K1 = 15, K2 = 15,
@@ -201,8 +200,10 @@ Dynamic prediction
 ---------------
 To reduce estimation biases resulting from variable selection, we propose incorporating an additional stage to calculate dynamic predictions. After variable selection using CS or DS prior, we recommend re-estimating the proportional hazard model by substituting CS or Ds with non-informative normal priors for the association parameters of the selected markers and the regression coefficients of the selected covariates. This has been done by considering *VS2* function in the package. The main arguments in this function are:
 
+- object an object inheriting from class VS function.
+- Method the method for variable selection including "LBFDR" for LBFDR and "BF" for Bayes factor.
 
-
+The following command is considered for this aim:
 
 ```
 Step2 <- VS2(VS,
@@ -210,4 +211,63 @@ Step2 <- VS2(VS,
   n.thin = 1, dataLong = dataLong_t, dataSurv = dataSurv_t
 )
 ```
+Finally, for dynamic prediction, we should utilize the *DP* function, specifying the following arguments:
+
+
+- object an object inheriting from class VS
+- object2 an object inheriting from class VS2
+- Method the method for variable selection including "LBFDR" for LBFDR and "BF" for Bayes factor.
+- s the landmark time for prediction
+- t the window of prediction for prediction
+- cause_main the main cause for prediction
+- dataLong data set of observed longitudinal variables (validation set).
+- dataSurv data set of observed survival variables (validation set).
+
+
+
+```
+DP <- DP(VS, Step2,
+  Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 3000, n.burnin = 2000,
+  n.thin = 1, cause_main = 1,
+  DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
+)
+```
+
+The outputs of this function are as follows:
+
+```
+$DP
+     id         est
+1     2 0.710044463
+2     5 0.121999798
+3     7 0.155945232
+4    10 0.059012615
+5    11 0.031432560
+6    15 0.059668201
+7    16 0.029397494
+8    18 0.104735078
+9    19 0.134540067
+10   21 0.223344760
+11   22 0.405120681
+12   24 0.009959658
+.
+.
+.
+243 488 0.054126771
+244 492 0.051628731
+245 493 0.089307181
+246 494 0.007899571
+247 495 0.058865561
+248 497 0.125211111
+249 498 0.045489998
+250 500 0.054972112
+
+$s
+[1] 0.1
+
+$t
+[1] 0.5
+```
+
+
 
