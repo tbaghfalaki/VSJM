@@ -135,7 +135,7 @@ $\sim I\Gamma$
 
 ($a_{\sigma_{\gamma _{jk}}^2}$,
 
-$b_{\sigma_{\gamma _{jk}}^2}$)
+\ b_{\sigma_{\gamma _{jk}}^2} \
 
 
 
