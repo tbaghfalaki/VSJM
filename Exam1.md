@@ -115,10 +115,12 @@ Finally, we have to use the VS function with the following arguments:
 -----------------
 
 DS:
+
 $\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{lj}}) N(0,\sigma_{\gamma_{lj}}^2)+ \pi_{\gamma_{lj}}{\delta _0}(\gamma _{lj}), l=1,...,L, j=1,...,p^\gamma_l,$  
 
 CS:
-$\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{lj}}) N(0,\sigma_{\gamma_{lj}}^2)+ \pi_{\gamma_{lj}}N(0,\sigma_{\gamma_{lj}}^2), l=1,...,L, j=1,...,p^\gamma_l,$  
+
+$\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{lj}}) N(0,\sigma_{\gamma_{lj}}^2)+ \pi_{\gamma_{lj}}N(0,10^{-3}), l=1,...,L, j=1,...,p^\gamma_l,$  
 
 
 It is important to note that if you consider "simplify=TRUE", instead of hirarchical setup for the variance $\sigma_{\gamma_{lj}}^2$ a prior inverse gamma with parameters (0.01,0.01) are considered for both CS and DS. 
