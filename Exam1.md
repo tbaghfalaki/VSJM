@@ -367,16 +367,46 @@ AUC 0.68654215 0.05618483
 BS  0.09340079 0.01390426
 ```
 
-- The third one is dynamic prediction for some-marker JM, *DPSM* as follows:
+- The third one is dynamic prediction for some markers JM, *DPSM* as follows which markers 1 and 2 are considered:
  
 ```
 D1 <- DPSM(VS, Step2,
-  N_marker = c(1, 2), s = 0.1, t = 0.5, cause_main = 1, n.chains = 1,
+  N_markers = c(1, 2), s = 0.1, t = 0.5, cause_main = 1, n.chains = 1,
   n.iter = 2000, n.burnin = 1000,
   n.thin = 1,
   DIC = TRUE, quiet = FALSE, dataLong_v, dataSurv_v
 )
 ```
+with the following outputs:
+
+```
+$DP
+     id         est
+1     2 0.636124878
+2     5 0.108507783
+3     7 0.133040704
+4    10 0.062460364
+5    11 0.030595321
+6    15 0.054849917
+7    16 0.029366528
+8    18 0.102721955
+9    19 0.126131630
+10   21 0.216189878
+11   22 0.370319961
+12   24 0.010574606
+.
+.
+.
+247 495 0.054092313
+248 497 0.121026926
+249 498 0.047753484
+250 500 0.053321847
+
+     est         sd
+AUC 0.74880268 0.04967864
+BS  0.08925278 0.01368505
+````
+
 
 - The last one is the Monte Carlo approximation of dynamic prediction, which is the Monte Carlo version of the *DP* function with a new argument as follows:
 
