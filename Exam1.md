@@ -412,6 +412,9 @@ BS  0.08925278 0.01368505
 
 - mi the number of multiple imputation for Monte-Carlo approximation; default is 10.
 
+
+Using this function facilitates the computation of credible intervals for each prediction.
+
 ```
 MCDP <- MCDP(VS, Step2,
   Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
