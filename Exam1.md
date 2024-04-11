@@ -120,6 +120,9 @@ $\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{l
 $\pi_{\gamma_{lj}} |{a_{\gamma_{lj}}},{b_{\gamma_{lj}}} \sim Beta(a_{\gamma_{lj}},{b_{\gamma_{lj}}}),$
 
 
+$$\sigma_{\gamma _{jk}}^2 | a_{\sigma_{\gamma _{jk}}^2},b_{\sigma_{\gamma _{jk}}^2} \sim \text{IG} (a_{\sigma_{\gamma _{jk}}^2}, b_{\sigma_{\gamma _{jk}}^2})$$
+
+
 $\sigma^2_{\gamma _{jk}} |  a_{\sigma_{\gamma _{jk}}^2}$ 
 
 
