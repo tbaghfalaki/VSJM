@@ -362,7 +362,37 @@ $t
 [1] 0.5
 
 
-est         sd
+    est         sd
 AUC 0.68654215 0.05618483
 BS  0.09340079 0.01390426
 ```
+
+- The third one is dynamic prediction for some-marker JM, *DPSM* as follows:
+ 
+```
+D1 <- DPSM(VS, Step2,
+  N_marker = c(1, 2), s = 0.1, t = 0.5, cause_main = 1, n.chains = 1,
+  n.iter = 2000, n.burnin = 1000,
+  n.thin = 1,
+  DIC = TRUE, quiet = FALSE, dataLong_v, dataSurv_v
+)
+```
+
+- The last one is the Monte Carlo approximation of dynamic prediction, which is the Monte Carlo version of the *DP* function with a new argument as follows:
+
+- mi the number of multiple imputation for Monte-Carlo approximation; default is 10.
+
+```
+MCDP <- MCDP(VS, Step2,
+  Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
+  n.thin = 1, cause_main = 1, mi = 10,
+  DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
+)
+
+Criteria(
+  s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+  CR = dataSurv_v$CR, P = MCDP$DP$est, cause = 1
+)
+```
+with the following outputs:
+
