@@ -142,10 +142,10 @@ VS <- VS(formFixed, formRandom, formGroup, formSurv,
 )
 ```
 
-The outputs of this function is as follows: 
+For summarizing the outputs of this function, we utilize the following function:
 
 ```
-
+SVS <- SVS(VS)
 ```
 
 
