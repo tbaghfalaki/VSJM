@@ -119,7 +119,7 @@ $\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{l
 
 $\pi_{\gamma_{lj}} |{a_{\gamma_{lj}}},{b_{\gamma_{lj}}} \sim Beta(a_{\gamma_{lj}},{b_{\gamma_{lj}}}),$
 
-$\sigma^2_{\gamma _{jk}}$|$a_{\sigma_{\gamma _{jk}}^2},$
+$\sigma^2_{\gamma _{jk}}$ | $a_{\sigma_{\gamma _{jk}}^2},$
 
 
 $\sigma_{\gamma_{jk}}^2$
