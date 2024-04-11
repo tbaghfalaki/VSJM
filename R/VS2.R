@@ -7,7 +7,7 @@
 #' @details
 #' After variable selection by VS, the second stage is re-estimated by replacing CS or Ds with non-informative normal distributions as priors for the association parameters of the selected markers and the regression coefficients of the selected covariates.
 #'
-#' @param object an object inheriting from class VSJM
+#' @param object an object inheriting from class VS function.
 #' @param Method the method for variable selection including "LBFDR" for LBFDR and "BF" for Bayes factor.
 #' @param dataLong data set of observed longitudinal variables.
 #' @param dataSurv data set of observed survival variables.
