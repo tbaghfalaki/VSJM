@@ -268,6 +268,33 @@ $s
 $t
 [1] 0.5
 ```
+Computing AUC and BS for the predictions
+---------------
+For this purpose, we use DPCri package <https://github.com/tbaghfalaki/DPCri>.
+
+Computing the criteria using this package is straightforward, as demonstrated by the following commands:
+
+- s the landmark time for prediction
+- t the window of prediction for prediction
+- Survt the survival time
+- CR the indicator for competing risks or censoring
+- P the risk predictions
+- cause the main cause for prediction
 
 
+Consider the following command: 
 
+```
+Criteria(
+  s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+  CR = dataSurv_v$CR, P = DP$DP$est, cause = 1
+)
+```
+with the following outputs:
+
+```
+$Cri
+           est         sd
+AUC 0.74090038 0.05008035
+BS  0.09049356 0.01382442
+```
