@@ -136,7 +136,7 @@ Step2 <- VS2(VS,
 
 
 D1 <- DPSM(VS, Step2,
-  N_marker = c(1, 2), s = 0.1, t = 0.5, cause_main = 1, n.chains = 1,
+  N_markers = c(1, 2), s = 0.1, t = 0.5, cause_main = 1, n.chains = 1,
   n.iter = 2000, n.burnin = 1000,
   n.thin = 1,
   DIC = TRUE, quiet = FALSE, dataLong_v, dataSurv_v

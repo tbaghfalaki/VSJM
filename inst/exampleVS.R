@@ -238,13 +238,13 @@ Criteria(
 
 
 MCDP <- MCDP(VS, Step2,
-  Method = "LBFDR", s = 0, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
-  n.thin = 1, cause_main = 1, mi = 5,
+  Method = "LBFDR", s = 0.1, t = 0.5, n.chains = 1, n.iter = 2000, n.burnin = 1000,
+  n.thin = 1, cause_main = 1, mi = 10,
   DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
 )
 
 Criteria(
-  s = 0, t = 0.5, Survt = dataSurv_v$survtime,
+  s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
   CR = dataSurv_v$CR, P = MCDP$DP$est, cause = 1
 )
 

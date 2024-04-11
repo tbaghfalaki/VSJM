@@ -725,7 +725,7 @@ DPSM <- function(object, object2, N_markers = c(1, 2), s = s, t = t, cause_main 
 
   ###### Step 2 #######
   betaS <- object2$Estimation$Survival_model$gamma$Est
-  alpha <- object2$Estimation$Survival_model$alpha$Est
+  alpha <- object2$Estimation$Survival_model$alpha$Est[,N_markers]
   h <- object2$Estimation$Survival_model$lambda$Est
   ########################### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
   step <- function(x) {
