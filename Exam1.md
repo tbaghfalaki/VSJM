@@ -121,7 +121,7 @@ $\pi_{\gamma_{lj}} |{a_{\gamma_{lj}}},{b_{\gamma_{lj}}} \sim Beta(a_{\gamma_{lj}
 
 $\sigma^2_{\gamma _{jk}}$ | 
 
-$a_{\sigma_{\gamma _{jk}}^2},$
+$a_{\sigma_{\gamma _{jk}}^2},b_{\sigma_{\gamma _{jk}}^2}$
 
 
 $\sigma_{\gamma_{jk}}^2$
@@ -132,7 +132,7 @@ $\sigma_{\gamma_{jk}}^2$
 $\sim I\Gamma$ 
 
 
-$\sim {{I}\Gamma}({a_{\sigma_{\gamma _{jk}}^2},b_{\sigma_{\gamma _{jk}}^2})$
+$(a_{\sigma_{\gamma _{jk}}^2},b_{\sigma_{\gamma _{jk}}^2})$
 
 
 
