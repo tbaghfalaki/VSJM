@@ -115,7 +115,7 @@ Finally, we have to use the VS function with the following arguments:
 -----------------
 
 
-$\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{lj}}) N(0,\sigma_{\gamma_{lj}}^2)+ \pi_{\gamma_{lj}}{\delta _0}(\gamma _{lj})  $
+$\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{lj}}) N(0,\sigma_{\gamma_{lj}}^2)+ \pi_{\gamma_{lj}}{\delta _0}(\gamma _{lj}),\sigma{\gamma{lj}}^2>0, l=1,...,L, j=1,...,p^\gamma_l,$  
 
 $\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2  \sim (1 - \pi_{\gamma_{lj}}){N}(0,\sigma_{\gamma_{lj}}^2) + \pi_{\gamma_{lj}}{\delta _0}(\gamma _{lj}), \sigma_{\gamma_{lj}}^2>0, l=1,...,L, j=1,...,p^\gamma_l,$
 
