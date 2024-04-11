@@ -114,28 +114,12 @@ Finally, we have to use the VS function with the following arguments:
 
 -----------------
 
-
+DS:
 $\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{lj}}) N(0,\sigma_{\gamma_{lj}}^2)+ \pi_{\gamma_{lj}}{\delta _0}(\gamma _{lj}), l=1,...,L, j=1,...,p^\gamma_l,$  
 
-$\pi_{\gamma_{lj}} |{a_{\gamma_{lj}}},{b_{\gamma_{lj}}} \sim Beta(a_{\gamma_{lj}},{b_{\gamma_{lj}}}),$
+CS:
+$\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{lj}}) N(0,\sigma_{\gamma_{lj}}^2)+ \pi_{\gamma_{lj}}N(0,\sigma_{\gamma_{lj}}^2), l=1,...,L, j=1,...,p^\gamma_l,$  
 
-
-$$\sigma_{\gamma _{jk}}^2 | a_{\sigma_{\gamma _{jk}}^2},b_{\sigma_{\gamma _{jk}}^2} \sim \text{IG} (a_{\sigma_{\gamma _{jk}}^2}, b_{\sigma_{\gamma _{jk}}^2})$$
-
-
-$\sigma^2_{\gamma _{jk}} |  a_{\sigma_{\gamma _{jk}}^2}$ 
-
-
-$\sigma^2_{\gamma _{jk}}$ |  
-
-$a_{\sigma_{\gamma _{jk}}^2}$ 
-
-$b_{\sigma_{\gamma _{jk}}^2}$ 
-$\sim I\Gamma$   
-
-($a_{\sigma_{\gamma _{jk}}^2}$,
-
-\ b_{\sigma_{\gamma _{jk}}^2} \
 
 It is important to note that if you consider "simplify=TRUE", instead of hirarchical setup for the variance $\sigma_{\gamma_{lj}}^2$ a prior inverse gamma with parameters (0.01,0.01) are considered for both CS and DS. 
 
