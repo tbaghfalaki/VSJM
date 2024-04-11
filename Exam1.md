@@ -195,3 +195,11 @@ $alpha$I_BF
 Cause 1       1       1       0       0       1       0       1       0       0        0
 Cause 2       0       1       1       0       0       0       0       0       0        0
 ```
+At this stage variable selection has been done. The next stage is variable selection. 
+
+
+
+
+
+
+
