@@ -285,6 +285,9 @@ Computing the criteria using this package is straightforward, as demonstrated by
 Consider the following command: 
 
 ```
+library(survival)
+library(DPCri)
+
 Criteria(
   s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
   CR = dataSurv_v$CR, P = DP$DP$est, cause = 1
@@ -298,3 +301,13 @@ $Cri
 AUC 0.74090038 0.05008035
 BS  0.09049356 0.01382442
 ```
+
+Other beneficial functions
+---------
+
+Although all the requirements for computing risk prediction are completed at this stage, we propose some other beneficial functions.
+The first one is *DP0*, which computes dynamic prediction without reestimation and the use of *VS2* functions.
+
+
+
+
