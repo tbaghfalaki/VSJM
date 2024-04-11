@@ -117,9 +117,12 @@ Finally, we have to use the VS function with the following arguments:
 
 
 
-${\gamma_{lj}} \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \mathop  \sim \limits^{ind} (1 - \pi_{\gamma_{lj}}){N}({0},\sigma_{\gamma_{lj}}^2) + \pi_{\gamma_{lj}}{\delta _0}(\gamma _{lj}), \sigma_{\gamma_{lj}}^2>0, l=1,\ldots,L, j=1,\ldots,p^\gamma_l,$
+${\gamma_{lj}}| \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \mathop  \sim (1 - \pi_{\gamma_{lj}}){N}({0},\sigma_{\gamma_{lj}}^2) + \pi_{\gamma_{lj}}{\delta _0}(\gamma _{lj}), \sigma_{\gamma_{lj}}^2>0, l=1,\ldots,L, j=1,...,p^\gamma_l,$
+
 $\pi_{\gamma_{lj}} |{a_{\gamma_{lj}}},{b_{\gamma_{lj}}} \sim Beta(a_{\gamma_{lj}},{b_{\gamma_{lj}}}),$
-$\sigma_{\gamma _{jk}}^2  {a_{\sigma_{\gamma _{jk}}^2},{\sigma_{\gamma _{jk}}^2} \sim {\rm{I}\Gamma}({a_{\sigma_{\gamma _{jk}}^2},b_{\sigma_{\gamma _{jk}}^2})$
+
+
+$\sigma_{\gamma _{jk}}^2 | {a_{\sigma_{\gamma _{jk}}^2},{\sigma_{\gamma _{jk}}^2} \sim {{I}\Gamma}({a_{\sigma_{\gamma _{jk}}^2},b_{\sigma_{\gamma _{jk}}^2})$
 
 
 
