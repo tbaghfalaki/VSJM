@@ -113,6 +113,7 @@ Finally, we have to use the VS function with the following arguments:
 -  quiet Logical, whether to suppress stdout in jags.model().
 
 -----------------
+This approach considers CS or DS priors as follows:
 
 DS:
 
@@ -126,8 +127,9 @@ $\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{l
 It is important to note that if you consider "simplify=TRUE", instead of hirarchical setup for the variance $\sigma_{\gamma_{lj}}^2$ a prior inverse gamma with parameters (0.01,0.01) are considered for both CS and DS. 
 
 
-As an example, consider the following command, where this implementation has been performed on training data. We consider "DS" method.
+It is important to note that if you consider "simplify=TRUE", instead of a hierarchical setup for the variance $\sigma_{\gamma_{lj}}^2$, a prior inverse gamma with parameters (0.01,0.01) is used for both CS and DS.
 
+As an example, consider the following command, where this implementation has been performed on training data using the "DS" method:
 
 
 ```
