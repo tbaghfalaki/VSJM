@@ -306,8 +306,63 @@ Other beneficial functions
 ---------
 
 Although all the requirements for computing risk prediction are completed at this stage, we propose some other beneficial functions.
-The first one is *DP0*, which computes dynamic prediction without reestimation and the use of *VS2* functions.
 
 
+- The first one is *DP0*, which computes dynamic prediction without reestimation and the use of *VS2* functions.
+
+```
+DP0 <- DP0(VS, s = 0.1, t = 0.5, n.chains = 1, n.iter = 3000, n.burnin = 2000,
+         n.thin = 1, cause_main = 1,
+         DIC = TRUE, quiet = FALSE, dataLong = dataLong_v, dataSurv = dataSurv_v
+)
+
+$Cri
+          est         sd
+AUC 0.7344633 0.04313503
+BS  0.1251009 0.01484688
+```
+
+- The second one is dynamic prediction for one-marker JM, *DPOM* as follows:
+
+```
+D1 <- DPOM(VS,
+  N_marker = 1, s = 0.1, t = 0.5, cause_main = 1, n.chains = 1,
+  n.iter = 2000, n.burnin = 1000,
+  n.thin = 1,
+  DIC = TRUE, quiet = FALSE, dataLong_v, dataSurv_v
+)
+
+Criteria(
+  s = 0.1, t = 0.5, Survt = dataSurv_v$survtime,
+  CR = dataSurv_v$CR, P = D1$DP$est, cause = 1
+)$Cri
+```
+with the following outputs:
+
+```
+$DP
+     id        est
+1     2 0.35079126
+2     5 0.13189275
+3     7 0.08357039
+4    10 0.12484472
+5    11 0.14788052
+.
+.
+.
+247 495 0.12207898
+248 497 0.08566377
+249 498 0.09357884
+250 500 0.08983822
+
+$s
+[1] 0.1
+
+$t
+[1] 0.5
 
 
+est         sd
+AUC 0.68654215 0.05618483
+BS  0.09340079 0.01390426
+```
