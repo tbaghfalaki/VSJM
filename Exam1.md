@@ -137,6 +137,7 @@ $\sim I\Gamma$
 
 \ b_{\sigma_{\gamma _{jk}}^2} \
 
+It is important to note that if you consider "simplify=TRUE", instead of hirarchical setup for the variance 
 
 
 As an example, consider the following command, where this implementation has been performed on training data. We consider "DS" method.
