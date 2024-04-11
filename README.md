@@ -11,5 +11,19 @@ To acquire the latest development version of VSJM, you may utilize the following
 ```
 This will seamlessly fetch and install the most up-to-date version of VSJM for your use.
 
+
+Note: Before installing this package, please install the *parallelsugar* package using the following command:
+
+```
+  # install.packages("devtools")
+  devtools::install_github('nathanvan/parallelsugar')
+```
+
+### Example Usage
+
+ > Examples from the VSJM can be found in the following:
+
+- Variable selection: This analysis is presented [here](/Exam1.md)
+
 ### Reference 
 Baghfalaki, T., Hashemi, R. & Jacqmin-Gadda, H. (2024). A Two-stage Approach for Variable Selection in Joint Modeling of Multiple Longitudinal Markers and Competing Risk Outcomes. 
