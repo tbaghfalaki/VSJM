@@ -320,7 +320,7 @@ AUC 0.7344633 0.04313503
 BS  0.1251009 0.01484688
 ```
 
-- The second one is dynamic prediction for one-marker, *DPOM* as follows:
+- The second one is dynamic prediction for one-marker by *DPOM* as follows:
 
 ```
 D1 <- DPOM(VS,
@@ -365,7 +365,7 @@ AUC 0.68654215 0.05618483
 BS  0.09340079 0.01390426
 ```
 
-- The third one is dynamic prediction for some markers JM, *DPSM* as follows which markers 1 and 2 are considered:
+- The third one is dynamic prediction for some markers JM by *DPSM* as follows which markers 1 and 2 are considered:
  
 ```
 D1 <- DPSM(VS, Step2,
