@@ -60,11 +60,11 @@ formSurv <- survival::Surv(survtime, CR) ~ w1 + x1
 We need to choose the model for the marker trend among "intercept," "linear," and "quadratic." For instance, if we consider a covariate $x_1$, the options are as follows:
 
 intercept:
-$Y_{ik}(t)= \beta_{0k}+\beta_{1k}t+\beta_{2k}x_1+b_{0ki}+\varepsilon_{ikt}$
+$Y_{ik}(t)= \beta_{0k}+\beta_{1k}t+\beta_{2k}x_{1i}+b_{0ki}+\varepsilon_{ikt}$
 
 
 linear:
-$Y_{ik}(t)= \beta_{0k}+\beta_{1k}t+\beta_{2k}x_1+b_{0ki}+b_{1ki} t+\varepsilon_{ikt}$
+$Y_{ik}(t)= \beta_{0k}+\beta_{1k}t+\beta_{2k}x_{1i}+b_{0ki}+b_{1ki} t+\varepsilon_{ikt}$
 
 
 quadratic:
@@ -124,7 +124,7 @@ CS:
 $\gamma_{lj} | \pi_{\gamma_{lj}},\sigma_{\gamma_{lj}}^2 \sim (1 - \pi_{\gamma_{lj}}) N(0,\sigma_{\gamma_{lj}}^2)+ \pi_{\gamma_{lj}}N(0,10^{-3}), l=1,...,L, j=1,...,p^\gamma_l,$  
 
 
-It is important to note that if you consider "simplify=TRUE", instead of hirarchical setup for the variance $\sigma_{\gamma_{lj}}^2$ a prior inverse gamma with parameters (0.01,0.01) are considered for both CS and DS. 
+It is important to note that if you consider "simplify=TRUE", instead of hirarchical setup for the variance $\sigma_{\gamma_{lj}}^2$ an  inverse gamma prior with parameters (0.01,0.01) are considered for both CS and DS. 
 
 
 It is important to note that if you consider "simplify=TRUE", instead of a hierarchical setup for the variance $\sigma_{\gamma_{lj}}^2$, a prior inverse gamma with parameters (0.01,0.01) is used for both CS and DS.
