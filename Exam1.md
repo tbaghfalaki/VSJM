@@ -320,7 +320,7 @@ AUC 0.7344633 0.04313503
 BS  0.1251009 0.01484688
 ```
 
-- The second one is dynamic prediction for one-marker JM, *DPOM* as follows:
+- The second one is dynamic prediction for one-marker, *DPOM* as follows:
 
 ```
 D1 <- DPOM(VS,
