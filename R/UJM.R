@@ -56,6 +56,10 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
     id <- as.integer(data_long[all.vars(formGroup)][, 1])
     n2 <- length(unique(id))
 
+
+
+
+
     M <- table(id)
     id2 <- rep(1:length(M), M)
 
@@ -257,12 +261,28 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
 }"
 
 
+    rem0 <- try({
+      lme4::lmer(y ~ X + (1 | id), data = data_long)
+    }, silent = TRUE)
+
+    if (!inherits(rem0, "try-error")) {
+      betaL_init <- summary(rem0)$coefficients[, 1]
+      tau1_init=1 / summary(rem0)$sigma^2
+      Omega_init=1 / as.numeric(summary(rem0)$varcor[1])
+
+    } else {
+      betaL_init <- rnorm(dim(X)[2])
+      tau1_init=1
+      Omega_init=1
+    }
+
 
     C <- length(unique(CR)) - 1
     i.jags <- function() {
       list(
         gamma1 = stats::rnorm(C),
-        betaL = stats::rnorm(dim(X)[2]), tau1 = 1, Omega = 1, b = rep(0, n2)
+        betaL = betaL_init, tau1 = tau1_init,
+        Omega = Omega_init, b = rep(0, n2)
       )
     }
 
@@ -617,13 +637,28 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
   sigma1<-1/tau1
 }"
 
+    rem0 <- try({
+      lme4::lmer(y ~ X + (obstime | id), data = data_long)
+    }, silent = TRUE)
 
+    if (!inherits(rem0, "try-error")) {
+      betaL_init <- summary(rem0)$coefficients[, 1]
+      tau1_init=1 / summary(rem0)$sigma^2
+      AAA=summary(rem0)$varcor[[1]]
+      Omega_init=diag(diag(MASS::ginv(AAA)))
+
+    } else {
+      betaL_init <- rnorm(dim(X)[2])
+      tau1_init=1
+      Omega_init=diag(1,Nb)
+    }
 
     C <- length(unique(CR)) - 1
     i.jags <- function() {
       list(
         gamma1 = stats::rnorm(C),
-        betaL = stats::rnorm(dim(X)[2]), tau1 = 1, Omega = diag(stats::runif(Nb)), b = matrix(0, n2, Nb)
+        betaL = betaL_init, tau1 =tau1_init,
+        Omega =  Omega_init, b = matrix(0, n2, Nb)
       )
     }
 
@@ -994,15 +1029,31 @@ UJM <- function(formFixed, formRandom, formGroup, formSurv, dataLong, dataSurv, 
   sigma1<-1/tau1
 }"
 
+    rem0 <- try({
+      lme4::lmer(y ~ X + (poly(obstime, 2) | id), data = data_long)
+    }, silent = TRUE)
+
+    if (!inherits(rem0, "try-error")) {
+      betaL_init <- summary(rem0)$coefficients[, 1]
+      tau1_init=1 / summary(rem0)$sigma^2
+      AAA=summary(rem0)$varcor[[1]]
+      Omega_init=diag(diag(MASS::ginv(AAA)))
+
+    } else {
+      betaL_init <- rnorm(dim(X)[2])
+      tau1_init=1
+      Omega_init=diag(1,Nb)
+    }
+
     C <- length(unique(CR)) - 1
-    set.seed(2)
     i.jags <- function() {
       list(
         gamma1 = stats::rnorm(C),
-        betaL = stats::rnorm(dim(X)[2]), tau1 = 1, Omega = diag(stats::runif(Nb)),
-        b = matrix(0, n2, Nb)
+        betaL = betaL_init, tau1 =tau1_init,
+        Omega =  Omega_init, b = matrix(0, n2, Nb)
       )
     }
+
 
     parameters <- c(
       "betaL", "betaS", "linearpred", "b",
