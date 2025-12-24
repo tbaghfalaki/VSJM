@@ -24,4 +24,4 @@ Note: Before installing this package, please install the *parallelsugar* package
 - Variable selection and dynamic prediction is presented [here](/Exam1.md)
 
 ### Reference 
-Baghfalaki, T., Hashemi, R. Tzourio, C., Helmer C., & Jacqmin-Gadda, H. (2024). A Two-Stage Bayesian Method for Variable Selection in Joint Models of Multiple Longitudinal Markers with Competing Risks. arXiv:2412.03797v2.
+Baghfalaki, T., Hashemi, R. Tzourio, C., Helmer C., & Jacqmin-Gadda, H. (2024). *A Two-Stage Bayesian Method for Variable Selection in Joint Models of Multiple Longitudinal Markers with Competing Risks*. arXiv:2412.03797v2.
